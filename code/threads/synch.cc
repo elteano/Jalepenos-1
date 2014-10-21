@@ -100,13 +100,64 @@ Semaphore::V()
 // Dummy functions -- so we can compile our later assignments
 // Note -- without a correct implementation of Condition::Wait(),
 // the test case in the network assignment won't work!
-Lock::Lock(char* debugName) {}
-Lock::~Lock() {}
-void Lock::Acquire() {}
-void Lock::Release() {}
+Lock::Lock(char* debugName) {
+    isLocked = false;
+    name = debugName;
+    queue = new List();
+    currThread = NULL;
+}//--- end constructor
 
-Condition::Condition(char* debugName) { }
-Condition::~Condition() { }
+Lock::~Lock() {
+    delete queue;
+}//--- end destructor
+
+void Lock::Acquire() {
+    //--- turn interrupts off
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    while(isLocked){
+        queue->Append((void *)currentThread);
+        currentThread->Sleep();
+    }
+    isLocked = true;
+    currThread = currentThread; //--- show that the current thread has the lock
+    (void) interrupt->SetLevel(oldLevel); //--- restore old state
+}//--- end routine Aquire
+
+void Lock::Release() {
+    //--- turn interrupts off
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    //--- get the head of the queue
+    Thread * thread;
+    thread = (Thread *)queue->Remove();
+    //--- check to see if the head is not NULL
+    if(thread != NULL){
+    //--- --- wake it up if it isn't
+        scheduler->ReadyToRun(thread);
+    }
+    //--- change the lock state to reflect that the lock is free
+    currThread = NULL;
+    isLocked = false;
+
+    //--- turn interrupts back on
+    (void) interrupt->SetLevel(oldLevel); //reset
+}//--- end routine Release
+
+bool Lock::isHeldByCurrentThread(){
+    if(currentThread == currThread){
+        return true;
+    }
+    return false;
+}
+
+Condition::Condition(char* debugName) {
+    name = debugName;
+    queue = new List();
+}//--- end constructor
+
+Condition::~Condition() { 
+    delete queue;
+}//--- end destructor
+
 void Condition::Wait(Lock* conditionLock) {
     ASSERT(FALSE);
 }
