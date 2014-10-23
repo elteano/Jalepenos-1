@@ -88,14 +88,14 @@ void ReadersAndWriters(){
 void Writer(int param){
     l.Acquire();
     wantToWrite = true;
-    printf("A WRITER WANTS TO WRITE!\n");
+    printf("WRITER %s WANTS TO WRITE!\n", currentThread->getName());
     while(nReaders > 0){
         wGo.Wait(&l);
     }
     currentThread->Yield();
-    printf("WRITER WRITING\n");
+    printf("WRITER %s WRITING\n", currentThread->getName());
     wantToWrite = false;
-    printf("WRITER FINISHED WRITING\n");
+    printf("WRITER %s FINISHED WRITING\n", currentThread->getName());
     rGo.Broadcast(&l);
     l.Release();
 }
@@ -108,9 +108,9 @@ void Reader(int param){
     nReaders++;
     l.Release();
     currentThread->Yield();
-    printf("READING\n");
+    printf("%s IS READING\n", currentThread->getName());
     l.Acquire();
-    printf("READER FINISHED READING!\n");
+    printf("%s HAS FINISHED READING!\n", currentThread->getName());
     nReaders--;
     printf("THERE ARE %d READERS LEFT...\n", nReaders);
     if(nReaders == 0){
