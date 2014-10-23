@@ -152,14 +152,36 @@ bool Lock::isHeldByCurrentThread(){
 Condition::Condition(char* debugName) {
     name = debugName;
     queue = new List();
+    lock = new Lock(debugName);
 }//--- end constructor
 
 Condition::~Condition() { 
     delete queue;
+    delete lock;
 }//--- end destructor
 
 void Condition::Wait(Lock* conditionLock) {
-    ASSERT(FALSE);
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    conditionLock->Release();
+    queue->Append((void *)currentThread);
+    currentThread->Sleep();
+    conditionLock->Acquire();
+    (void) interrupt->SetLevel(oldLevel); //reset
 }
-void Condition::Signal(Lock* conditionLock) { }
-void Condition::Broadcast(Lock* conditionLock) { }
+void Condition::Signal(Lock* conditionLock) { 
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    Thread * thread;
+    thread = (Thread *) queue->Remove();
+    if(thread != NULL){
+        scheduler->ReadyToRun(thread);
+    }
+    (void) interrupt->SetLevel(oldLevel); //reset
+}
+void Condition::Broadcast(Lock* conditionLock) { 
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    Thread * thread;
+    while((thread = (Thread*)queue->Remove()) != NULL){
+        scheduler->ReadyToRun(thread);
+    }
+    (void) interrupt->SetLevel(oldLevel); //reset
+}

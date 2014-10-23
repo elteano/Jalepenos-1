@@ -142,5 +142,6 @@ private:
     char* name;
     // plus some other stuff you'll need to define
     List * queue;
+    Lock * lock;
 };
 #endif // SYNCH_H

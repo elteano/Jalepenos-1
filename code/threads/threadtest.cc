@@ -52,7 +52,72 @@ ThreadTest1()
     t->Fork(SimpleThread, 1);
     SimpleThread(0);
 }
+//----------------------------------------------------------------------
+// ConditionTest1
+//----------------------------------------------------------------------
+Condition wGo("test");
+Condition rGo("test");
+Lock l("test");
+int nReaders = 0;
+bool wantToWrite = false;
+void Writer(int);
+void Reader(int);
+void ReadersAndWriters(){
+    Thread * t;
+    Thread * t2;
+    t = new Thread("one");
+    t2 = new Thread("2.one");
+    t->Fork(Reader, 0);
+    t2->Fork(Reader, 0);
+    t = new Thread("six");
+    t->Fork(Reader, 0);
+    t2 = new Thread("2.three");
+    t2->Fork(Reader, 0);
 
+    t = new Thread("two");
+    t->Fork(Writer, 0);
+    t = new Thread("three");
+    t2 = new Thread("2.two");
+    t->Fork(Reader, 0);
+    t2->Fork(Reader, 0);
+    t = new Thread("four");
+    t->Fork(Reader, 0);
+    t = new Thread("five");
+    t->Fork(Writer, 0);
+}
+void Writer(int param){
+    l.Acquire();
+    wantToWrite = true;
+    printf("A WRITER WANTS TO WRITE!\n");
+    while(nReaders > 0){
+        wGo.Wait(&l);
+    }
+    currentThread->Yield();
+    printf("WRITER WRITING\n");
+    wantToWrite = false;
+    printf("WRITER FINISHED WRITING\n");
+    rGo.Broadcast(&l);
+    l.Release();
+}
+
+void Reader(int param){
+    l.Acquire();
+    while(wantToWrite){
+        rGo.Wait(&l);
+    }
+    nReaders++;
+    l.Release();
+    currentThread->Yield();
+    printf("READING\n");
+    l.Acquire();
+    printf("READER FINISHED READING!\n");
+    nReaders--;
+    printf("THERE ARE %d READERS LEFT...\n", nReaders);
+    if(nReaders == 0){
+        wGo.Signal(&l);
+    }
+    l.Release();
+}
 //----------------------------------------------------------------------
 // LockTest1
 //----------------------------------------------------------------------
@@ -128,6 +193,9 @@ ThreadTest()
         break;
     case 2:
         LockTest1();
+        break;
+    case 3:
+        ReadersAndWriters();
         break;
     default:
         printf("No test specified.\n");
