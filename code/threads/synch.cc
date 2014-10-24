@@ -163,6 +163,7 @@ Condition::Condition(char* debugName) {
 }//--- end constructor
 
 Condition::~Condition() {
+    ASSERT(queue->IsEmpty());
     delete queue;
     delete lock;
 }//--- end destructor
@@ -177,6 +178,10 @@ void Condition::Wait(Lock* conditionLock) {
 }
 void Condition::Signal(Lock* conditionLock) { 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    if(!conditionLock->isHeldByCurrentThread()){
+        DEBUG('t', "Thread %s attempted to signal while not holding the lock!", currentThread->getName());
+        return;
+    }
     Thread * thread;
     thread = (Thread *) queue->Remove();
     if(thread != NULL){
@@ -186,6 +191,10 @@ void Condition::Signal(Lock* conditionLock) {
 }
 void Condition::Broadcast(Lock* conditionLock) { 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    if(!conditionLock->isHeldByCurrentThread()){
+        DEBUG('t', "Thread %s attempted to Broadcast while not holding the lock!", currentThread->getName());
+        return;
+    }
     Thread * thread;
     while((thread = (Thread*)queue->Remove()) != NULL){
         scheduler->ReadyToRun(thread);
