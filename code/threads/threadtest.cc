@@ -127,21 +127,15 @@ Lock *locktest1 = NULL;
 void
 LockThread1(int param)
 {
-    #ifdef DEBUG
-    printf("L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    DEBUG('t', "L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     printf("L1:0\n");
     locktest1->Acquire();
-    #ifdef DEBUG
-    printf("L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    DEBUG('t', "L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     printf("L1:1\n");
     currentThread->Yield();
     printf("L1:2\n");
     locktest1->Release();
-    #ifdef DEBUG
-    printf("L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    DEBUG('t', "L1 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     printf("L1:3\n");
 }
 
@@ -149,20 +143,15 @@ void
 LockThread2(int param)
 {
     printf("L2:0\n");
-    #ifdef DEBUG
-    printf("L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    
+    DEBUG('t', "L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     locktest1->Acquire();
-    #ifdef DEBUG
-    printf("L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    DEBUG('t', "L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     printf("L2:1\n");
     currentThread->Yield();
     printf("L2:2\n");
     locktest1->Release();
-    #ifdef DEBUG
-    printf("L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
-    #endif
+    DEBUG('t', "L2 Holding Lock? %i\n", locktest1->isHeldByCurrentThread());
     printf("L2:3\n");
 }
 
@@ -179,6 +168,19 @@ LockTest1()
     t->Fork(LockThread2, 0);
 }
 
+Lock * locktest2 = NULL; // testing the safety features
+void Lock2Thread1(int param){
+    locktest2->Acquire();
+    delete locktest2;
+    locktest2->Release();
+}//
+void LockTest2(){
+    DEBUG('t', "Entering LockTest2");
+    locktest2 = new Lock("LockTest2");
+    Thread * t;
+    t = new Thread("one");
+    t->Fork(Lock2Thread1, 0);
+}//
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -195,6 +197,9 @@ ThreadTest()
         LockTest1();
         break;
     case 3:
+        LockTest2();
+        break;
+    case 4:
         ReadersAndWriters();
         break;
     default:

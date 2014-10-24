@@ -108,7 +108,10 @@ Lock::Lock(char* debugName) {
 }//--- end constructor
 
 Lock::~Lock() {
+    DEBUG('t', "Attempting to delete Lock: ");
+    ASSERT(!isLocked);
     delete queue;
+    DEBUG('t', "Success...\n");
 }//--- end destructor
 
 void Lock::Acquire() {
@@ -127,6 +130,10 @@ void Lock::Release() {
     //--- turn interrupts off
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     //--- get the head of the queue
+    if(currThread != currentThread){
+        DEBUG('t', "Current thread attempting to Release thread not owned!");
+        return;
+    }
     Thread * thread;
     thread = (Thread *)queue->Remove();
     //--- check to see if the head is not NULL
@@ -135,8 +142,8 @@ void Lock::Release() {
         scheduler->ReadyToRun(thread);
     }
     //--- change the lock state to reflect that the lock is free
-    currThread = NULL;
-    isLocked = false;
+    currThread = NULL; // show that no thread owns the lock
+    isLocked = false;  // show that the Lock is not in use
 
     //--- turn interrupts back on
     (void) interrupt->SetLevel(oldLevel); //reset
@@ -155,7 +162,7 @@ Condition::Condition(char* debugName) {
     lock = new Lock(debugName);
 }//--- end constructor
 
-Condition::~Condition() { 
+Condition::~Condition() {
     delete queue;
     delete lock;
 }//--- end destructor
