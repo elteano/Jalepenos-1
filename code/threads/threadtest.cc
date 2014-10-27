@@ -181,6 +181,27 @@ void LockTest2(){
     t = new Thread("one");
     t->Fork(Lock2Thread1, 0);
 }//
+
+//----------------------------------------------------------------------
+// Mailbox tests
+//----------------------------------------------------------------------
+Mailbox sndr("mailbox");
+
+void MailboxSend(int param){
+    DEBUG('t', "\"%s\" entering MailboxSend\n", currentThread->getName());
+    sndr.Send(param);
+    DEBUG('t', "\"%s\" exiting MailboxSend\n", currentThread->getName());
+}
+
+void MailboxTest1(){
+    DEBUG('t', "Entering MailboxTest1");
+    Thread * t;
+    t = new Thread("One");
+    t->Fork(MailboxSend, 0);
+//    t = new Thread("Two");
+//    t->Fork(MailboxSend, 2);
+}
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -201,6 +222,9 @@ ThreadTest()
         break;
     case 4:
         ReadersAndWriters();
+        break;
+    case 5:
+        MailboxTest1();
         break;
     default:
         printf("No test specified.\n");

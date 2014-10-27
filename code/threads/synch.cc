@@ -201,3 +201,36 @@ void Condition::Broadcast(Lock* conditionLock) {
     }
     (void) interrupt->SetLevel(oldLevel); //reset
 }
+
+//-------------------------------------------------------
+//-- Mailbox class definition
+//-------------------------------------------------------
+
+Mailbox::Mailbox(char * debugName){
+    buffer = new List();
+    lock = new Lock("Mailbox Lock");
+    mailSnd = new Condition("Mail Send");
+    mailRcv = new Condition("Mail Receive");
+    mailSent = false;
+    name = debugName;
+}//--- end constructor
+
+Mailbox::~Mailbox(){
+    delete mailSnd;
+    delete mailRcv;
+    delete lock;
+}//--- end destructor
+
+void Mailbox::Send(int message){
+    lock->Acquire();
+    lock->Release();
+}//--- end routine Send
+
+void Mailbox::Receive(int * message){
+    lock->Acquire();
+    lock->Release();
+}//--- end routine Receive
+
+char * Mailbox::getName(){
+    return name;
+}//--- end routine getName

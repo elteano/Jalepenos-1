@@ -144,4 +144,21 @@ private:
     List * queue;
     Lock * lock;
 };
+
+
+class Mailbox{
+private:
+    Lock * lock;         // condition lock
+    Condition * mailSnd; // cond var for sending
+    Condition * mailRcv; // cond var for receiving
+    bool mailSent;       // test to check for receiveness
+    List * buffer;
+    char * name;
+public:
+    Mailbox(char * debugName);
+    ~Mailbox();
+    void Send(int message);
+    void Receive(int * message);
+    char * getName();
+};
 #endif // SYNCH_H
