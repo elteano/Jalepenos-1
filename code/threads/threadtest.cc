@@ -182,6 +182,17 @@ void LockTest2(){
     t->Fork(Lock2Thread1, 0);
 }//
 
+void LockTest3Thread(int param){
+    locktest2->Acquire();
+    locktest2->Acquire();    
+}//
+void LockTest3(){
+    DEBUG('t', "Entering LockTest3\n");
+    locktest2 = new Lock("locktest3");
+    Thread * t;
+    t = new Thread("one");
+    t->Fork(LockTest3Thread, 0);
+}
 //----------------------------------------------------------------------
 // Mailbox tests
 //----------------------------------------------------------------------
@@ -221,10 +232,10 @@ ThreadTest()
         LockTest2();
         break;
     case 4:
-        ReadersAndWriters();
+        LockTest3();
         break;
     case 5:
-        MailboxTest1();
+        ReadersAndWriters();
         break;
     default:
         printf("No test specified.\n");

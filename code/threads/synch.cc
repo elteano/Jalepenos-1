@@ -117,6 +117,7 @@ Lock::~Lock() {
 void Lock::Acquire() {
     //--- turn interrupts off
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    ASSERT(!isHeldByCurrentThread());
     while(isLocked){
         queue->Append((void *)currentThread);
         currentThread->Sleep();
