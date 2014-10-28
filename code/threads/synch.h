@@ -148,9 +148,12 @@ private:
 
 class Mailbox{
 private:
-    Lock * lock;         // condition lock
+    Lock * lock;         // other lock
+    Lock * condLock;     // condition lock
     Condition * mailSnd; // cond var for sending
     Condition * mailRcv; // cond var for receiving
+    Condition * mailCpyDone;  // condition variable for when copy is complete
+    bool copyComplete;   // true when the copy is finished
     int numPendingSends; // number of pending sends
     int numPendingRecs;  // number of pending receives
     List * buffer;

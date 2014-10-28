@@ -212,10 +212,13 @@ void Condition::Broadcast(Lock* conditionLock) {
 Mailbox::Mailbox(char * debugName){
     buffer = new List();
     lock = new Lock("Mailbox Lock");
+    condLock = new Lock("Condition Lock");
     mailSnd = new Condition("Mail Send");
     mailRcv = new Condition("Mail Receive");
-    pendingSend = false;
-    pendingRec = false;
+    mailCpyDone = new Condition("Mail Copy");
+    copyComplete = false;
+    numPendingSends = 0;
+    numPendingRecs = 0;
     name = debugName;
 }//--- end constructor
 
@@ -228,29 +231,38 @@ Mailbox::~Mailbox(){
 
 void Mailbox::Send(int message){
     lock->Acquire();
-    ++pendingSends;
+    ++numPendingSends;
     lock->Release();
-    if (pendingRecs == 0) {
-      mailRcv->Wait();
+    condLock->Acquire();
+    if (numPendingRecs == 0) {
+      mailRcv->Wait(condLock);
     } else {
-      mailSnd->Signal();
+      mailSnd->Signal(condLock);
     }
+    if (!copyComplete)
+      mailCpyDone->Wait(condLock);
+    condLock->Release();
     lock->Acquire();
-    --pendingSends;
+    --numPendingSends;
     lock->Release();
 }//--- end routine Send
 
 void Mailbox::Receive(int * message){
     lock->Acquire();
-    ++pendingRecs;
+    ++numPendingRecs;
     lock->Release();
-    if (pendingSends == 0) {
-      mailSnd->Wait();
+    condLock->Acquire();
+    if (numPendingSends == 0) {
+      mailSnd->Wait(condLock);
     } else {
-      mailRcv->Signal();
+      mailRcv->Signal(condLock);
     }
+    buffer->Append(message);
+    copyComplete = true;
+    mailCpyDone->Signal(condLock);
+    condLock->Release();
     lock->Acquire();
-    --pendingRecs;
+    --numPendingRecs;
     lock->Release();
 }//--- end routine Receive
 
