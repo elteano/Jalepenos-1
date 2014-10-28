@@ -131,10 +131,12 @@ void Lock::Release() {
     //--- turn interrupts off
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     //--- get the head of the queue
-    if(currThread != currentThread){
+/*    if(currThread != currentThread){
         DEBUG('t', "Current thread attempting to Release thread not owned!");
         return;
-    }
+    }*/
+    ASSERT(currThread != currentThread); // panic! We're releasing a thread we don't own
+
     Thread * thread;
     thread = (Thread *)queue->Remove();
     //--- check to see if the head is not NULL
@@ -179,27 +181,27 @@ void Condition::Wait(Lock* conditionLock) {
 }
 void Condition::Signal(Lock* conditionLock) { 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    if(!conditionLock->isHeldByCurrentThread()){
-        DEBUG('t', "Thread %s attempted to signal while not holding the lock!", currentThread->getName());
-        return;
-    }
+    //--- PANIC!!!! We're signalling even though we don't have the lock
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    
     Thread * thread;
     thread = (Thread *) queue->Remove();
     if(thread != NULL){
-        scheduler->ReadyToRun(thread);
+        scheduler->ReadyToRun(thread); // wake up the first thread in the queue
     }
+
     (void) interrupt->SetLevel(oldLevel); //reset
 }
 void Condition::Broadcast(Lock* conditionLock) { 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    if(!conditionLock->isHeldByCurrentThread()){
-        DEBUG('t', "Thread %s attempted to Broadcast while not holding the lock!", currentThread->getName());
-        return;
-    }
+    //--- PANIC!!!! Attempting to broadcast while not holding the lock!!
+    ASSERT(conditionLock->isHeldByCurrentThread());
+
     Thread * thread;
     while((thread = (Thread*)queue->Remove()) != NULL){
-        scheduler->ReadyToRun(thread);
+        scheduler->ReadyToRun(thread); // wake up all the threads
     }
+
     (void) interrupt->SetLevel(oldLevel); //reset
 }
 

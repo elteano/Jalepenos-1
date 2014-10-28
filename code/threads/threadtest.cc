@@ -60,6 +60,24 @@ Condition rGo("test");
 Lock l("test");
 int nReaders = 0;
 bool wantToWrite = false;
+
+void badConditionTest1(int param){
+    DEBUG('t', "Attempt to signal a condition that isn't waiting\n");
+    wGo.Signal(&l); // signaling a condition that we don't have the lock to
+}
+void badConditionTest2(int param){
+    DEBUG('t', "Attempt to broadcast a condition that isn't waiting\n");
+    wGo.Broadcast(&l);
+}
+void CondTest1(){
+    Thread * t = new Thread("one");
+    t->Fork(badConditionTest1, 0);
+}
+void CondTest2(){
+    Thread * t = new Thread("one");
+    t->Fork(badConditionTest2, 0);
+}
+
 void Writer(int);
 void Reader(int);
 void ReadersAndWriters(){
@@ -170,8 +188,16 @@ LockTest1()
 
 Lock * locktest2 = NULL; // testing the safety features
 void Lock2Thread1(int param){
+    DEBUG('t', "First Acquiring lock, then releasing... \n");
+    locktest2->Acquire();
+    locktest2->Release();
+    delete locktest2;
+    DEBUG('t', "\tSUCCESS!!\n");
+    DEBUG('t', "Attempting to Acquire a lock and then delete it...\n");
+    locktest2 = new Lock("LockTest2-bad");
     locktest2->Acquire();
     delete locktest2;
+    DEBUG('t', "\tFAILURE!\nWe have deleted a lock that is in use...\n");
     locktest2->Release();
 }//
 void LockTest2(){
@@ -236,6 +262,12 @@ ThreadTest()
         break;
     case 5:
         ReadersAndWriters();
+        break;
+    case 6:
+        CondTest1();
+        break;
+    case 7:
+        CondTest2();
         break;
     default:
         printf("No test specified.\n");
