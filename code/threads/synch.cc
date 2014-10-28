@@ -135,7 +135,7 @@ void Lock::Release() {
         DEBUG('t', "Current thread attempting to Release thread not owned!");
         return;
     }*/
-    ASSERT(currThread != currentThread); // panic! We're releasing a thread we don't own
+    ASSERT(isHeldByCurrentThread()); // panic! We're releasing a thread we don't own
 
     Thread * thread;
     thread = (Thread *)queue->Remove();
