@@ -223,6 +223,7 @@ Mailbox::~Mailbox(){
     delete mailSnd;
     delete mailRcv;
     delete lock;
+    delete buffer;
 }//--- end destructor
 
 void Mailbox::Send(int message){

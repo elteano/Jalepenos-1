@@ -151,8 +151,8 @@ private:
     Lock * lock;         // condition lock
     Condition * mailSnd; // cond var for sending
     Condition * mailRcv; // cond var for receiving
-    bool mailSent;       // test to check for receiveness
-    bool mailRec;        // test to check fo' sendingness
+    int numPendingSends; // number of pending sends
+    int numPendingRecs;  // number of pending receives
     List * buffer;
     char * name;
 public:
