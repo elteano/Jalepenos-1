@@ -173,6 +173,7 @@ Condition::~Condition() {
 
 void Condition::Wait(Lock* conditionLock) {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    ASSERT(conditionLock->isHeldByCurrentThread());
     conditionLock->Release();
     queue->Append((void *)currentThread);
     currentThread->Sleep();

@@ -108,6 +108,7 @@ void Writer(int param){
     wantToWrite = true;
     printf("WRITER %s WANTS TO WRITE!\n", currentThread->getName());
     while(nReaders > 0){
+        printf("%s: \"there is a reader... I'm going to bed...\"\n", currentThread->getName());
         wGo.Wait(&l);
     }
     currentThread->Yield();
@@ -120,11 +121,13 @@ void Writer(int param){
 
 void Reader(int param){
     l.Acquire();
+    printf("%s wants to read\n", currentThread->getName());
     while(wantToWrite){
+        printf("Ikadsfalksdfasd\n");
         rGo.Wait(&l);
     }
     nReaders++;
-    l.Release();
+        l.Release();
     currentThread->Yield();
     printf("%s IS READING\n", currentThread->getName());
     l.Acquire();
@@ -132,6 +135,7 @@ void Reader(int param){
     nReaders--;
     printf("THERE ARE %d READERS LEFT...\n", nReaders);
     if(nReaders == 0){
+        printf("%s: \"No more readers... I'm going to bed...\"\n", currentThread->getName());
         wGo.Signal(&l);
     }
     l.Release();
@@ -234,7 +238,7 @@ void MailboxTest1(){
     DEBUG('t', "Entering MailboxTest1");
     Thread * t;
     t = new Thread("One");
-    t->Fork(MailboxSend, 0);
+    t->Fork(MailboxSend, 1);
 //    t = new Thread("Two");
 //    t->Fork(MailboxSend, 2);
 }
@@ -268,6 +272,9 @@ ThreadTest()
         break;
     case 7:
         CondTest2();
+        break;
+    case 8:
+        MailboxTest1();
         break;
     default:
         printf("No test specified.\n");
