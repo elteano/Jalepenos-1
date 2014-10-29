@@ -231,6 +231,7 @@ Mailbox::~Mailbox(){
 }//--- end destructor
 
 void Mailbox::Send(int message){
+/*
     lock->Acquire();
     ++numPendingSends;
     lock->Release();
@@ -245,11 +246,21 @@ void Mailbox::Send(int message){
     condLock->Release();
     lock->Acquire();
     --numPendingSends;
+    lock->Release();*/
+    lock->Acquire();
+    numPendingSends++;
+    
+    buffer->Append((void *)&message);
+    while(numPendingRecs == 0){
+      mailSnd->Wait(lock);
+    }
+    mailRcv->Signal(lock);
+    numPendingSends--;
     lock->Release();
 }//--- end routine Send
 
 void Mailbox::Receive(int * message){
-    lock->Acquire();
+    /*lock->Acquire();
     ++numPendingRecs;
     lock->Release();
     condLock->Acquire();
@@ -258,13 +269,26 @@ void Mailbox::Receive(int * message){
     } else {
       mailRcv->Signal(condLock);
     }
+*message = savedFromSender;
+
     buffer->Append(message);
     copyComplete = true;
     mailCpyDone->Signal(condLock);
     condLock->Release();
     lock->Acquire();
     --numPendingRecs;
+    lock->Release();*/
+    lock->Acquire();
+    numPendingRecs++;
+    while(numPendingSends == 0){
+      mailRcv->Wait(lock);
+    }
+    *message =  *(int*) buffer->Remove();
+    printf("*message = %d\n", *message);
+    mailSnd->Signal(lock);
+    numPendingRecs--;
     lock->Release();
+    
 }//--- end routine Receive
 
 char * Mailbox::getName(){

@@ -230,15 +230,22 @@ Mailbox sndr("mailbox");
 
 void MailboxSend(int param){
     DEBUG('t', "\"%s\" entering MailboxSend\n", currentThread->getName());
-    sndr.Send(param);
+    sndr.Send(5);
     DEBUG('t', "\"%s\" exiting MailboxSend\n", currentThread->getName());
+}
+void MailboxReceive(int param){
+    int i = 0;
+    sndr.Receive(&i);
+    printf ("%d\n", i);
 }
 
 void MailboxTest1(){
     DEBUG('t', "Entering MailboxTest1");
     Thread * t;
     t = new Thread("One");
-    t->Fork(MailboxSend, 1);
+    t->Fork(MailboxSend, 0);
+    t = new Thread("Two");
+    t->Fork(MailboxReceive, 0);
 //    t = new Thread("Two");
 //    t->Fork(MailboxSend, 2);
 }
