@@ -261,6 +261,7 @@ void JoinTask(int param){
 }
 
 void JoinTest1(){
+    DEBUG('t', "Entering JoinTest1\n");
     Thread * t = new Thread("bob", 1);
     t->Fork(JoinTask, 0);
     DEBUG('t', "Joining the parent to the child's grave...\n");
@@ -270,12 +271,14 @@ void JoinTest1(){
 
 //----------------------------------------------------------------------
 // ThreadTest
-// 	Invoke a test routine.
+//  Invoke a test routine.
 //----------------------------------------------------------------------
 
 void
 ThreadTest()
 {
+    // To enable debug messages, uncomment the following line:
+    // InitDebug("t");
     switch (testnum) {
     case 1:
         ThreadTest1();

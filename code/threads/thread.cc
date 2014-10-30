@@ -39,8 +39,10 @@ Thread::Thread(char* threadName, int join)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    if (joining)
+    mayDie = new Semaphore("Thread death permisser", 1);
+    if (joining != 0)
     {
+      mayDie->P();
       joinSignal = new Semaphore("Thread Joiner", 0);
     }
 #ifdef USER_PROGRAM
@@ -65,6 +67,7 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT(this != currentThread);
+    delete mayDie;
     if (joining)
       delete joinSignal;
     if (stack != NULL)
@@ -155,16 +158,16 @@ Thread::Finish ()
 
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
 
-    if (joining)
+    if (joining != 0)
     {
+      DEBUG('t', "Allowing joins to thread \"%s\"\n", getName());
       joinSignal->V();
+      mayDie->P();
     }
-    else
-    {
-      threadToBeDestroyed = currentThread;
-      Sleep();					// invokes SWITCH
+    DEBUG('t', "\"%s\" continuing to death\n", getName());
+    threadToBeDestroyed = currentThread;
+    Sleep();					// invokes SWITCH
       // not reached
-    }
 }
 
 //----------------------------------------------------------------------
@@ -314,7 +317,7 @@ void Thread::Join()
   ASSERT(this != currentThread);
   // This will wait until thread finished
   joinSignal->P();
-  threadToBeDestroyed = this;
+  mayDie->V();
 }
 
 #ifdef USER_PROGRAM

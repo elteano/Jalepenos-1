@@ -83,6 +83,7 @@ private:
     int machineState[MachineStateSize];  // all registers except for stackTop
     int joining;
     Semaphore * joinSignal;
+    Semaphore * mayDie;
 
 public:
     Thread(char* debugName, int join = 0);		// initialize a Thread
