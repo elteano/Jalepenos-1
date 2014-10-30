@@ -251,6 +251,24 @@ void MailboxTest1(){
 }
 
 //----------------------------------------------------------------------
+// Join tests
+//  Tests for joining
+//----------------------------------------------------------------------
+void JoinTask(int param){
+    DEBUG('t', "Entering JoinTask with Thread: %s\n", currentThread->getName());
+    currentThread->Yield();
+    DEBUG('t', "Exiting JoinTask with Thread: %s\n", currentThread->getName());
+}
+
+void JoinTest1(){
+    Thread * t = new Thread("bob", 1);
+    t->Fork(JoinTask, 0);
+    DEBUG('t', "Joining the parent to the child's grave...\n");
+    t->Join();
+    printf("Graceful exit...\n");
+}
+
+//----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
 //----------------------------------------------------------------------
@@ -282,6 +300,9 @@ ThreadTest()
         break;
     case 8:
         MailboxTest1();
+        break;
+    case 30:
+        JoinTest1();
         break;
     default:
         printf("No test specified.\n");
