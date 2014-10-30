@@ -260,24 +260,6 @@ void Mailbox::Send(int message){
 }//--- end routine Send
 
 void Mailbox::Receive(int * message){
-    /*lock->Acquire();
-    ++numPendingRecs;
-    lock->Release();
-    condLock->Acquire();
-    if (numPendingSends == 0) {
-      mailSnd->Wait(condLock);
-    } else {
-      mailRcv->Signal(condLock);
-    }
-*message = savedFromSender;
-
-    buffer->Append(message);
-    copyComplete = true;
-    mailCpyDone->Signal(condLock);
-    condLock->Release();
-    lock->Acquire();
-    --numPendingRecs;
-    lock->Release();*/
     lock->Acquire();
     numPendingRecs++;
     while(numPendingSends == 0){
