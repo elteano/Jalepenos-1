@@ -82,6 +82,7 @@ private:
     int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
     int joining;
+    int key;
     Semaphore * joinSignal;
     Semaphore * mayDie;
 
@@ -101,6 +102,9 @@ public:
     // relinquish the processor
     void Finish();  				// The thread is done executing
     void Join();
+
+    int getPriority();
+    void setPriority(int priority);
 
     void CheckOverflow();   			// Check if thread has
     // overflowed its stack

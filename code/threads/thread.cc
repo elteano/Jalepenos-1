@@ -35,6 +35,7 @@
 Thread::Thread(char* threadName, int join)
 {
     name = threadName;
+    key = 0;
     joining = join;
     stackTop = NULL;
     stack = NULL;
@@ -318,6 +319,21 @@ void Thread::Join()
   // This will wait until thread finished
   joinSignal->P();
   mayDie->V();
+}
+
+//----------------------------------------------------------------------
+// Thread::setPriority
+//	Sets the priority of the thread.
+//----------------------------------------------------------------------
+
+void Thread::setPriority(int priority)
+{
+  key = priority;
+}
+
+int Thread::getPriority()
+{
+  return key;
 }
 
 #ifdef USER_PROGRAM
