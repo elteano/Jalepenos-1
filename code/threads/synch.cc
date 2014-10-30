@@ -153,10 +153,7 @@ void Lock::Release() {
 }//--- end routine Release
 
 bool Lock::isHeldByCurrentThread(){
-    if(currentThread == currThread){
-        return true;
-    }
-    return false;
+    return currentThread == currThread;
 }
 
 Condition::Condition(char* debugName) {
