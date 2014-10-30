@@ -32,12 +32,17 @@
 //	"threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
 
-Thread::Thread(char* threadName)
+Thread::Thread(char* threadName, int join)
 {
     name = threadName;
+    joining = join;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    if (joining)
+    {
+      joinSignal = new Semaphore("Thread Joiner", 0);
+    }
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -60,6 +65,8 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT(this != currentThread);
+    if (joining)
+      delete joinSignal;
     if (stack != NULL)
         DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
 }
@@ -148,9 +155,16 @@ Thread::Finish ()
 
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
 
-    threadToBeDestroyed = currentThread;
-    Sleep();					// invokes SWITCH
-    // not reached
+    if (joining)
+    {
+      joinSignal->V();
+    }
+    else
+    {
+      threadToBeDestroyed = currentThread;
+      Sleep();					// invokes SWITCH
+      // not reached
+    }
 }
 
 //----------------------------------------------------------------------
@@ -288,6 +302,19 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[InitialPCState] = (int) func;
     machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
+}
+
+//----------------------------------------------------------------------
+// Thread::Join
+//	Join the threads.
+//----------------------------------------------------------------------
+
+void Thread::Join()
+{
+  ASSERT(this != currentThread);
+  // This will wait until thread finished
+  joinSignal->P();
+  threadToBeDestroyed = this;
 }
 
 #ifdef USER_PROGRAM

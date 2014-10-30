@@ -55,6 +55,8 @@
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
 #define StackSize	(4 * 1024)	// in words
 
+// So that we can use the semaphore for joining
+class Semaphore;
 
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
@@ -79,9 +81,11 @@ private:
     // THEY MUST be in this position for SWITCH to work.
     int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
+    int joining;
+    Semaphore * joinSignal;
 
 public:
-    Thread(char* debugName);		// initialize a Thread
+    Thread(char* debugName, int join = 0);		// initialize a Thread
     ~Thread(); 				// deallocate a Thread
     // NOTE -- thread being deleted
     // must not be running when delete
@@ -95,6 +99,7 @@ public:
     void Sleep();  				// Put the thread to sleep and
     // relinquish the processor
     void Finish();  				// The thread is done executing
+    void Join();
 
     void CheckOverflow();   			// Check if thread has
     // overflowed its stack
