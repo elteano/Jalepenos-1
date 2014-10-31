@@ -230,21 +230,26 @@ Mailbox sndr("mailbox");
 
 void MailboxSend(int param){
     DEBUG('t', "\"%s\" entering MailboxSend\n", currentThread->getName());
-    sndr.Send(22);
+
+    printf("%s entering MailboxSend : %d\n" , currentThread->getName(), param);
+    sndr.Send(param);
     DEBUG('t', "\"%s\" exiting MailboxSend\n", currentThread->getName());
 }
 void MailboxReceive(int param){
     int i = 0;
+    printf("%s entering Mailboxreceive\n" , currentThread->getName());
     sndr.Receive(&i);
     printf ("%d\n", i);
 }
 
 void MailboxTest1(){
-    DEBUG('t', "Entering MailboxTest1");
+    //DebugInit("i");
+
+    printf("Entering MailboxTest1\n");
     Thread * t;
-    t = new Thread("One");
-    t->Fork(MailboxSend, 0);
-    t = new Thread("Two");
+    t = new Thread("OneS");
+    t->Fork(MailboxSend, 1);
+    t = new Thread("OneR");
     t->Fork(MailboxReceive, 0);
 //    t = new Thread("Two");
 //    t->Fork(MailboxSend, 2);
@@ -255,12 +260,12 @@ void MailboxTest1(){
  * Expected : 
  */
 void MailboxTest2(){
-    DEBUG('t', "Entering MailboxTest2");
+    printf("Entering MailboxTest2\n");
     Thread * t;
-    t = new Thread("One");
+    t = new Thread("OneR");
     t->Fork(MailboxReceive, 0);
-    t = new Thread("Two");
-    t->Fork(MailboxSend, 0);
+    t = new Thread("OneS");
+    t->Fork(MailboxSend, 1);
 }
 /*
  * Test     : RECEIVE -> RECEIVE -> SEND ->
@@ -271,29 +276,27 @@ void MailboxTest2(){
 void MailboxTest3(){
     DEBUG('t', "Entering MailboxTest3");
     Thread * t;
-    t = new Thread("One");
+    t = new Thread("OneR");
     t->Fork(MailboxReceive, 0);
-    t = new Thread("Two");
-    t->Fork(MailboxReceive, 0);
-
-    t = new Thread("Three");
-    t->Fork(MailboxSend, 0);
-    t = new Thread("Four");
+    t = new Thread("TwoR");
     t->Fork(MailboxReceive, 0);
 
-    t = new Thread("Five");
-    t->Fork(MailboxSend, 0);
-    t = new Thread("Six");
-    t->Fork(MailboxSend, 0);
+    t = new Thread("OneS");
+    t->Fork(MailboxSend, 1);
+    t = new Thread("ThreeR");
+    t->Fork(MailboxReceive, 0);
 
-    t = new Thread("Seven");
-    t->Fork(MailboxSend, 0);
-    t = new Thread("Eight");
-    t->Fork(MailboxSend, 0);
-    t = new Thread("Nine");
-    t->Fork(MailboxSend, 0);
+    t = new Thread("TwoS");
+    t->Fork(MailboxSend, 2);
+    t = new Thread("ThreeS");
+    t->Fork(MailboxSend, 3);
 
-
+    t = new Thread("FourS");
+    t->Fork(MailboxSend, 4);
+    t = new Thread("FiveS");
+    t->Fork(MailboxSend, 5);
+    t = new Thread("SixS");
+    t->Fork(MailboxSend, 6);
 }
 
 //----------------------------------------------------------------------
