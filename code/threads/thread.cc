@@ -35,18 +35,16 @@
 Thread::Thread(char* threadName, int join)
 {
     name = threadName;
+    joining = join;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-
-    //--- insertion of code
-    isChildFinished = false;
-    hasParentCalledJoin = false;
-    isJoinThread = join; //---
-    lock = new Lock("ThreadLock");
-    c_join = new Condition(name);
-    //--- end of insertion
-
+    mayDie = new Semaphore("Thread death permisser", 1);
+    if (joining != 0)
+    {
+      mayDie->P();
+      joinSignal = new Semaphore("Thread Joiner", 0);
+    }
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -69,7 +67,9 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT(this != currentThread);
-    
+    delete mayDie;
+    if (joining)
+      delete joinSignal;
     if (stack != NULL)
         DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
 }
@@ -152,60 +152,22 @@ Thread::CheckOverflow()
 //
 void
 Thread::Finish ()
-{ 
-    //--- inserting code
-    lock->Acquire();
+{
+    (void) interrupt->SetLevel(IntOff);
     ASSERT(this == currentThread);
 
-    // if (joining)
-    //   delete joinSignal;
-
-    if(isJoinThread){ // if we are a join thread we should be expecting a parent call
-        isChildFinished = true;
-        DEBUG('t', "Child '%s': 'I'm done!!'\n", name);
-        while(!hasParentCalledJoin){
-            DEBUG('t', "Child '%s': 'I'm waiting for my ride...'\n", name);
-            c_join->Wait(lock);
-        }
-        DEBUG('t', "Child '%s': 'Okay, I'm signalling and then I'm leaving'\n", name);
-        c_join->Signal(lock);
-    }
-    //--- finish insertion
-
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
-    threadToBeDestroyed = currentThread;
-    (void) interrupt->SetLevel(IntOff);
-    Sleep();					// invokes SWITCH
-    // not reached
-    lock->Release();
-}
 
-//----------------------------------------------------------------------
-// Thread::Join
-//  Join the threads.
-//----------------------------------------------------------------------
-
-void Thread::Join()
-{
-    lock->Acquire();
-    ASSERT(this != currentThread);
-    ASSERT(isJoinThread);
-
-    DEBUG('t', "Parent('%s') now checking the child('%s') out...\n", 
-            currentThread->getName(), name);
-
-    hasParentCalledJoin = true;
-    DEBUG('t', "Parent '%s': 'I've called join, dear.\n", currentThread->getName());
-    c_join->Signal(lock); //--- just in case the child is waiting for the parent
-
-    while(!isChildFinished){ // we must wait until the child finishes its task
-        DEBUG('t', "Parent '%s': 'Oh, not finished yet... Need to wait...\n", currentThread->getName());
-        c_join->Wait(lock); // hold until the thread finishes
+    if (joining != 0)
+    {
+      DEBUG('t', "Allowing joins to thread \"%s\"\n", getName());
+      joinSignal->V();
+      mayDie->P();
     }
-    printf("join finished bitch");
-
-    DEBUG('t', "Parent '%s': 'Okay, time to go.'\n", currentThread->getName());
-    lock->Release();
+    DEBUG('t', "\"%s\" continuing to death\n", getName());
+    threadToBeDestroyed = currentThread;
+    Sleep();					// invokes SWITCH
+      // not reached
 }
 
 //----------------------------------------------------------------------
@@ -345,6 +307,18 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 
+//----------------------------------------------------------------------
+// Thread::Join
+//	Join the threads.
+//----------------------------------------------------------------------
+
+void Thread::Join()
+{
+  ASSERT(this != currentThread);
+  // This will wait until thread finished
+  joinSignal->P();
+  mayDie->V();
+}
 
 #ifdef USER_PROGRAM
 #include "machine.h"
