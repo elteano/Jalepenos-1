@@ -301,28 +301,36 @@ void MailboxTest3(){
 //  Tests for joining
 //----------------------------------------------------------------------
 
-void JoinTask(int param){
+void Joinee(int param){
     DEBUG('t', "Entering JoinStart with Thread: %s\n", currentThread->getName());
-    printf("We're in the join thread\n");
+    printf("Joinee needs to poo\n");//change poo to something more appropriate when finished ;p
+    for(int i = 0; i < 5; i++){
+      printf("Joinee still pooping!\n");
+      currentThread->Yield();
+    }
     currentThread->Yield();
-    printf("Me first!\n");
+    printf("Joinee is Done\n");
+    currentThread->Yield();
     DEBUG('t', "Exiting JoinStart with Thread: %s\n", currentThread->getName());
 }
 
-void JoinStart(int param){
+void Joiner(Thread * joinee){
     DEBUG('t', "Entering JoinStart with Thread: %s\n", currentThread->getName());
-    Thread * th = new Thread("Joinee", 1);
-    th->Fork(JoinTask, 0);
-
-    th->Join(); // claim that we need to wait until th is done
-    printf("Me last...\n");
+    currentThread->Yield();
+    printf("Is you done\n");
+    joinee->Join(); // claim that we need to wait until joinee is done
+    printf("Joinee should be done pooping\n");
+    currentThread->Yield();
+    currentThread->Yield();
     DEBUG('t', "Exiting JoinStart with Thread: %s\n", currentThread->getName());
 }
 
 void JoinTest1(){
     printf("Sublime entrance of JoinTest1...\n");
-    Thread * t = new Thread("Joiner");
-    t->Fork(JoinStart, 0);
+    Thread *joiner = new Thread("Joiner", 0);
+    Thread *joinee = new Thread("Joinee", 1);
+    joiner->Fork((VoidFunctionPtr)Joiner, (int) joinee);
+    joinee->Fork((VoidFunctionPtr)Joinee, 0);
     printf("Graceful exit of JoinTest1...\n");
 }
 
