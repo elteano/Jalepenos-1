@@ -343,9 +343,11 @@ void Whale::Female(){
       femaleSnd->Wait(lock);
     }
 
+    numPendingFemale--;
 
     lock->Release();
 }
+
 void Whale::Matchmaker(){
     lock->Acquire();
     numPendingMatch++;
@@ -355,6 +357,8 @@ void Whale::Matchmaker(){
       matchSnd->Wait(lock);
     }
 
+    numPendingMatch--;
 
     lock->Release();
 }
+
