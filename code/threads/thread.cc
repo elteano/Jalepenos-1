@@ -35,17 +35,18 @@
 Thread::Thread(char* threadName, int join)
 {
     name = threadName;
-    key = 0;
-    joining = join;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    mayDie = new Semaphore("Thread death permisser", 1);
-    if (joining != 0)
-    {
-      mayDie->P();
-      joinSignal = new Semaphore("Thread Joiner", 0);
-    }
+
+    //--- insertion of code
+    isChildFinished = false;
+    hasParentCalledJoin = false;
+    isJoinThread = join; //---
+    lock = new Lock("ThreadLock");
+    c_join = new Condition(name);
+    //--- end of insertion
+
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -68,9 +69,7 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
     ASSERT(this != currentThread);
-    delete mayDie;
-    if (joining)
-      delete joinSignal;
+    
     if (stack != NULL)
         DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
 }
@@ -153,22 +152,29 @@ Thread::CheckOverflow()
 //
 void
 Thread::Finish ()
-{
-    (void) interrupt->SetLevel(IntOff);
+{ 
+    //--- inserting code
+    lock->Acquire();
     ASSERT(this == currentThread);
 
+    // if (joining)
+    //   delete joinSignal;
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
-
-    if (joining != 0)
-    {
-      DEBUG('t', "Allowing joins to thread \"%s\"\n", getName());
-      joinSignal->V();
-      mayDie->P();
-    }
-    DEBUG('t', "\"%s\" continuing to death\n", getName());
     threadToBeDestroyed = currentThread;
+
+    if(isJoinThread){ // if we are a join thread we should be expecting a parent call
+        isChildFinished = true;
+        while(!hasParentCalledJoin){
+            c_join->Wait(lock);
+        }
+        c_join->Signal(lock);
+    }
+    lock->Release();
+    //--- finish insertion
+
+    (void) interrupt->SetLevel(IntOff);
     Sleep();					// invokes SWITCH
-      // not reached
+    // not reached
 }
 
 //----------------------------------------------------------------------
@@ -315,25 +321,23 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
 
 void Thread::Join()
 {
-  ASSERT(this != currentThread);
-  // This will wait until thread finished
-  joinSignal->P();
-  mayDie->V();
-}
+    lock->Acquire();
+    ASSERT(this != currentThread);
+    ASSERT(isJoinThread);
 
-//----------------------------------------------------------------------
-// Thread::setPriority
-//	Sets the priority of the thread.
-//----------------------------------------------------------------------
+    DEBUG('t', "Parent('%s') now checking the child('%s') out...\n", 
+            currentThread->getName(), this->getName());
 
-void Thread::setPriority(int priority)
-{
-  key = priority;
-}
+    hasParentCalledJoin = true;
+    c_join->Signal(lock); //--- just in case the child is waiting for the parent
 
-int Thread::getPriority()
-{
-  return key;
+    while(!isChildFinished){ // we must wait until the child finishes its task
+        DEBUG('t', "Need to wait...\n");
+        c_join->Wait(lock); // hold until the thread finishes
+    }
+
+    DEBUG('t', "Child has perished in combat... Parent proceeding with revenge...\n");
+    lock->Release();
 }
 
 #ifdef USER_PROGRAM

@@ -254,31 +254,52 @@ void MailboxTest1(){
 // Join tests
 //  Tests for joining
 //----------------------------------------------------------------------
+
 void JoinTask(int param){
-    DEBUG('t', "Entering JoinTask with Thread: %s\n", currentThread->getName());
+    DEBUG('t', "Entering JoinStart with Thread: %s\n", currentThread->getName());
+    printf("We're in the join thread\n");
     currentThread->Yield();
-    DEBUG('t', "Exiting JoinTask with Thread: %s\n", currentThread->getName());
+    printf("Me first!\n");
+    DEBUG('t', "Exiting JoinStart with Thread: %s\n", currentThread->getName());
+}
+
+void JoinStart(int param){
+    DEBUG('t', "Entering JoinStart with Thread: %s\n", currentThread->getName());
+    Thread * th = new Thread("Joinee", 1);
+    th->Fork(JoinTask, 0);
+
+    th->Join(); // claim that we need to wait until th is done
+    printf("Me last...\n");
+    DEBUG('t', "Exiting JoinStart with Thread: %s\n", currentThread->getName());
 }
 
 void JoinTest1(){
-    DEBUG('t', "Entering JoinTest1\n");
-    Thread * t = new Thread("bob", 1);
-    t->Fork(JoinTask, 0);
-    DEBUG('t', "Joining the parent to the child's grave...\n");
-    t->Join();
-    printf("Graceful exit...\n");
+    printf("Sublime entrance of JoinTest1...\n");
+    Thread * t = new Thread("Joiner");
+    t->Fork(JoinStart, 0);
+    printf("Graceful exit of JoinTest1...\n");
 }
 
+void JoinStart1(int param){ // 
+    Thread * th = new Thread("Child");
+
+}
+
+void JoinTest2(){
+    //--- this test will insure that the child will finish before the parent
+    printf("Immaculate entrance of JoinTest2...\n");
+    Thread * t = new Thread("Parent");    
+    t->Fork(JoinStart1, 0);
+    printf("Perfect exit of JoinTest2...\n");
+}
 //----------------------------------------------------------------------
 // ThreadTest
-//  Invoke a test routine.
+// 	Invoke a test routine.
 //----------------------------------------------------------------------
 
 void
 ThreadTest()
 {
-    // To enable debug messages, uncomment the following line:
-    // InitDebug("t");
     switch (testnum) {
     case 1:
         ThreadTest1();

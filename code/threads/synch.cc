@@ -163,18 +163,23 @@ Condition::Condition(char* debugName) {
 }//--- end constructor
 
 Condition::~Condition() {
-    ASSERT(queue->IsEmpty());
+    ASSERT(queue->Remove() == NULL);
     delete queue;
     delete lock;
 }//--- end destructor
 
 void Condition::Wait(Lock* conditionLock) {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    
     ASSERT(conditionLock->isHeldByCurrentThread());
+    
     conditionLock->Release();
+    DEBUG('t', "Condition '%s': Lock surrendered...\n", getName());
     queue->Append((void *)currentThread);
+    
     currentThread->Sleep();
     conditionLock->Acquire();
+    
     (void) interrupt->SetLevel(oldLevel); //reset
 }
 void Condition::Signal(Lock* conditionLock) { 
@@ -187,7 +192,7 @@ void Condition::Signal(Lock* conditionLock) {
     if(thread != NULL){
         scheduler->ReadyToRun(thread); // wake up the first thread in the queue
     }
-
+    DEBUG('t', "Condition '%s': Signalled!\n", getName());
     (void) interrupt->SetLevel(oldLevel); //reset
 }
 void Condition::Broadcast(Lock* conditionLock) { 
@@ -200,6 +205,7 @@ void Condition::Broadcast(Lock* conditionLock) {
         scheduler->ReadyToRun(thread); // wake up all the threads
     }
 
+    DEBUG('t', "Condition '%s': Broadcasted!\n", getName());
     (void) interrupt->SetLevel(oldLevel); //reset
 }
 

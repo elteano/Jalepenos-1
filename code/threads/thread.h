@@ -57,6 +57,8 @@
 
 // So that we can use the semaphore for joining
 class Semaphore;
+class Condition;
+class Lock;
 
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
@@ -81,10 +83,14 @@ private:
     // THEY MUST be in this position for SWITCH to work.
     int* stackTop;			 // the current stack pointer
     int machineState[MachineStateSize];  // all registers except for stackTop
-    int joining;
-    int key;
-    Semaphore * joinSignal;
-    Semaphore * mayDie;
+
+    //--- insertion code
+    bool isJoinThread;
+    bool hasParentCalledJoin;
+    bool isChildFinished;
+    Lock * lock;
+    Condition * c_join;
+    //--- end insertion
 
 public:
     Thread(char* debugName, int join = 0);		// initialize a Thread
@@ -102,9 +108,6 @@ public:
     // relinquish the processor
     void Finish();  				// The thread is done executing
     void Join();
-
-    int getPriority();
-    void setPriority(int priority);
 
     void CheckOverflow();   			// Check if thread has
     // overflowed its stack
