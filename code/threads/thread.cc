@@ -164,9 +164,12 @@ Thread::Finish ()
 
     if(isJoinThread){ // if we are a join thread we should be expecting a parent call
         isChildFinished = true;
+        DEBUG('t', "Child '%s': 'I'm done!!'\n", name);
         while(!hasParentCalledJoin){
+            DEBUG('t', "Child '%s': 'I'm waiting for my ride...'\n", name);
             c_join->Wait(lock);
         }
+        DEBUG('t', "Child '%s': 'Okay, I'm signalling and then I'm leaving'\n", name);
         c_join->Signal(lock);
     }
     lock->Release();
@@ -326,17 +329,18 @@ void Thread::Join()
     ASSERT(isJoinThread);
 
     DEBUG('t', "Parent('%s') now checking the child('%s') out...\n", 
-            currentThread->getName(), this->getName());
+            currentThread->getName(), name);
 
     hasParentCalledJoin = true;
+    DEBUG('t', "Parent '%s': 'I've called join, dear.\n", currentThread->getName());
     c_join->Signal(lock); //--- just in case the child is waiting for the parent
 
     while(!isChildFinished){ // we must wait until the child finishes its task
-        DEBUG('t', "Need to wait...\n");
+        DEBUG('t', "Parent '%s': 'Oh, not finished yet... Need to wait...\n", currentThread->getName());
         c_join->Wait(lock); // hold until the thread finishes
     }
 
-    DEBUG('t', "Child has perished in combat... Parent proceeding with revenge...\n");
+    DEBUG('t', "Parent '%s': 'Okay, time to go.'\n", currentThread->getName());
     lock->Release();
 }
 

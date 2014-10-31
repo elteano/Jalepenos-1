@@ -281,15 +281,19 @@ void JoinTest1(){
 }
 
 void JoinStart1(int param){ // 
-    Thread * th = new Thread("Child");
-
+    Thread * th = new Thread("Child", 1);
+    th->Fork(JoinTask, 0);
+    currentThread->Yield();
+    th->Join();
 }
 
 void JoinTest2(){
     //--- this test will insure that the child will finish before the parent
+    //--- in other words, we will force the Child to wait for the Parent
     printf("Immaculate entrance of JoinTest2...\n");
-    Thread * t = new Thread("Parent");    
+    Thread * t = new Thread("Parent");
     t->Fork(JoinStart1, 0);
+
     printf("Perfect exit of JoinTest2...\n");
 }
 //----------------------------------------------------------------------
