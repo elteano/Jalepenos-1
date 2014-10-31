@@ -250,13 +250,18 @@ void Mailbox::Send(int message){
     lock->Acquire();
     --numPendingSends;
     lock->Release();*/
+
+    
     lock->Acquire();
+    DEBUG('t', "Trying to send\n");
     numPendingSends++;
     
     buffer->Append((void *)&message);
     while(numPendingRecs == 0){
       mailSnd->Wait(lock);
     }
+    DEBUG('t', "Sending\n");
+
     mailRcv->Signal(lock);
     numPendingSends--;
     lock->Release();
@@ -264,12 +269,17 @@ void Mailbox::Send(int message){
 
 void Mailbox::Receive(int * message){
     lock->Acquire();
+    DEBUG('t', "Trying to receive\n");
     numPendingRecs++;
+ 
     while(numPendingSends == 0){
       mailRcv->Wait(lock);
     }
+    DEBUG('t', "Receiving\n");
+
     *message =  *(int*) buffer->Remove();
     printf("*message = %d\n", *message);
+    
     mailSnd->Signal(lock);
     numPendingRecs--;
     lock->Release();
