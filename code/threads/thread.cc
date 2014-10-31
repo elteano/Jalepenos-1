@@ -159,8 +159,6 @@ Thread::Finish ()
 
     // if (joining)
     //   delete joinSignal;
-    DEBUG('t', "Finishing thread \"%s\"\n", getName());
-    threadToBeDestroyed = currentThread;
 
     if(isJoinThread){ // if we are a join thread we should be expecting a parent call
         isChildFinished = true;
@@ -172,12 +170,41 @@ Thread::Finish ()
         DEBUG('t', "Child '%s': 'Okay, I'm signalling and then I'm leaving'\n", name);
         c_join->Signal(lock);
     }
-    lock->Release();
     //--- finish insertion
 
+    DEBUG('t', "Finishing thread \"%s\"\n", getName());
+    threadToBeDestroyed = currentThread;
     (void) interrupt->SetLevel(IntOff);
     Sleep();					// invokes SWITCH
     // not reached
+    lock->Release();
+}
+
+//----------------------------------------------------------------------
+// Thread::Join
+//  Join the threads.
+//----------------------------------------------------------------------
+
+void Thread::Join()
+{
+    lock->Acquire();
+    ASSERT(this != currentThread);
+    ASSERT(isJoinThread);
+
+    DEBUG('t', "Parent('%s') now checking the child('%s') out...\n", 
+            currentThread->getName(), name);
+
+    hasParentCalledJoin = true;
+    DEBUG('t', "Parent '%s': 'I've called join, dear.\n", currentThread->getName());
+    c_join->Signal(lock); //--- just in case the child is waiting for the parent
+
+    while(!isChildFinished){ // we must wait until the child finishes its task
+        DEBUG('t', "Parent '%s': 'Oh, not finished yet... Need to wait...\n", currentThread->getName());
+        c_join->Wait(lock); // hold until the thread finishes
+    }
+
+    DEBUG('t', "Parent '%s': 'Okay, time to go.'\n", currentThread->getName());
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -317,32 +344,6 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 
-//----------------------------------------------------------------------
-// Thread::Join
-//	Join the threads.
-//----------------------------------------------------------------------
-
-void Thread::Join()
-{
-    lock->Acquire();
-    ASSERT(this != currentThread);
-    ASSERT(isJoinThread);
-
-    DEBUG('t', "Parent('%s') now checking the child('%s') out...\n", 
-            currentThread->getName(), name);
-
-    hasParentCalledJoin = true;
-    DEBUG('t', "Parent '%s': 'I've called join, dear.\n", currentThread->getName());
-    c_join->Signal(lock); //--- just in case the child is waiting for the parent
-
-    while(!isChildFinished){ // we must wait until the child finishes its task
-        DEBUG('t', "Parent '%s': 'Oh, not finished yet... Need to wait...\n", currentThread->getName());
-        c_join->Wait(lock); // hold until the thread finishes
-    }
-
-    DEBUG('t', "Parent '%s': 'Okay, time to go.'\n", currentThread->getName());
-    lock->Release();
-}
 
 #ifdef USER_PROGRAM
 #include "machine.h"

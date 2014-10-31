@@ -280,11 +280,20 @@ void JoinTest1(){
     printf("Graceful exit of JoinTest1...\n");
 }
 
-void JoinStart1(int param){ // 
+void JoinTask2(int param){
+    DEBUG('t', "Entering JoinStart with Thread: %s\n", currentThread->getName());
+    printf("We're in the join thread\n");
+    printf("Me first!\n");
+    DEBUG('t', "Exiting JoinStart with Thread: %s\n", currentThread->getName());
+}
+
+
+void JoinStart2(int param){ // 
     Thread * th = new Thread("Child", 1);
-    th->Fork(JoinTask, 0);
+    th->Fork(JoinTask2, 0);
     currentThread->Yield();
     th->Join();
+    printf("I've completed my duty...\n");
 }
 
 void JoinTest2(){
@@ -292,7 +301,7 @@ void JoinTest2(){
     //--- in other words, we will force the Child to wait for the Parent
     printf("Immaculate entrance of JoinTest2...\n");
     Thread * t = new Thread("Parent");
-    t->Fork(JoinStart1, 0);
+    t->Fork(JoinStart2, 0);
 
     printf("Perfect exit of JoinTest2...\n");
 }
@@ -317,20 +326,23 @@ ThreadTest()
     case 4:
         LockTest3();
         break;
-    case 5:
+    case 20:
         ReadersAndWriters();
         break;
-    case 6:
+    case 21:
         CondTest1();
         break;
-    case 7:
+    case 22:
         CondTest2();
         break;
-    case 8:
+    case 30:
         MailboxTest1();
         break;
-    case 30:
+    case 50:
         JoinTest1();
+        break;
+    case 51:
+        JoinTest2();
         break;
     default:
         printf("No test specified.\n");
