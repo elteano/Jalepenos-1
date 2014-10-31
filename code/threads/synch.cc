@@ -289,3 +289,72 @@ void Mailbox::Receive(int * message){
 char * Mailbox::getName(){
     return name;
 }//--- end routine getName
+
+
+//-------------------------------------------------------
+//-- Whale class definition
+//-------------------------------------------------------
+Whale::Whale(char * debugName){
+    lock = new Lock("Whale Lock");
+    condLock = new Lock("Condition Lock");
+    maleSnd = new Condition("Male Send");
+
+    femaleSnd = new Condition("Female Send");
+
+    matchSnd = new Condition("Match Send");
+
+    numPendingMale = 0;
+    numPendingFemale = 0;
+    numPendingMatch = 0;
+
+    name = debugName;
+}
+Whale::~Whale(){
+    delete maleSnd;
+    delete femaleSnd;
+    delete matchSnd;
+
+
+    delete lock;
+}
+
+void Whale::Male(){
+    lock->Acquire();
+    numPendingMale++;
+
+    while((numPendingFemale == 0) || 
+          (numPendingMatch == 0)){
+      maleSnd->Wait(lock);
+    }
+
+
+    
+
+    numPendingMale--;
+
+    lock->Release();
+}
+void Whale::Female(){
+    lock->Acquire();
+    numPendingFemale++;
+
+    while((numPendingMale == 0) || 
+          (numPendingMatch == 0)){
+      femaleSnd->Wait(lock);
+    }
+
+
+    lock->Release();
+}
+void Whale::Matchmaker(){
+    lock->Acquire();
+    numPendingMatch++;
+
+    while((numPendingFemale == 0) || 
+          (numPendingMale == 0)){
+      matchSnd->Wait(lock);
+    }
+
+
+    lock->Release();
+}
