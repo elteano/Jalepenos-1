@@ -145,6 +145,25 @@ private:
     Lock * lock;
 };
 
+class Whale {
+    private:
+        char * name;
+        Lock * lock;
+        Lock * condLock;
+        Condition * maleSnd;
+        Condition * femaleSnd;
+        Condition * matchSnd;
+        int numPendingMale;
+        int numPendingFemale;
+        int numPendingMatch;
+
+    public:
+        Whale(char * debugName);
+        ~Whale();
+        void Female();
+        void Male();
+        void Matchmaker();
+};
 
 class Mailbox{
 private:
