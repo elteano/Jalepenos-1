@@ -230,7 +230,7 @@ Mailbox sndr("mailbox");
 
 void MailboxSend(int param){
     DEBUG('t', "\"%s\" entering MailboxSend\n", currentThread->getName());
-    sndr.Send(5);
+    sndr.Send(22);
     DEBUG('t', "\"%s\" exiting MailboxSend\n", currentThread->getName());
 }
 void MailboxReceive(int param){
@@ -248,6 +248,52 @@ void MailboxTest1(){
     t->Fork(MailboxReceive, 0);
 //    t = new Thread("Two");
 //    t->Fork(MailboxSend, 2);
+}
+
+/*
+ * Test     : RECEIVE -> SEND
+ * Expected : 
+ */
+void MailboxTest2(){
+    DEBUG('t', "Entering MailboxTest2");
+    Thread * t;
+    t = new Thread("One");
+    t->Fork(MailboxReceive, 0);
+    t = new Thread("Two");
+    t->Fork(MailboxSend, 0);
+}
+/*
+ * Test     : RECEIVE -> RECEIVE -> SEND ->
+ *          : RECEIVE -> SEND -> SEND -> 
+ *          : SEND -> SEND -> SEND
+ * Expected : 
+ */
+void MailboxTest3(){
+    DEBUG('t', "Entering MailboxTest3");
+    Thread * t;
+    t = new Thread("One");
+    t->Fork(MailboxReceive, 0);
+    t = new Thread("Two");
+    t->Fork(MailboxReceive, 0);
+
+    t = new Thread("Three");
+    t->Fork(MailboxSend, 0);
+    t = new Thread("Four");
+    t->Fork(MailboxReceive, 0);
+
+    t = new Thread("Five");
+    t->Fork(MailboxSend, 0);
+    t = new Thread("Six");
+    t->Fork(MailboxSend, 0);
+
+    t = new Thread("Seven");
+    t->Fork(MailboxSend, 0);
+    t = new Thread("Eight");
+    t->Fork(MailboxSend, 0);
+    t = new Thread("Nine");
+    t->Fork(MailboxSend, 0);
+
+
 }
 
 //----------------------------------------------------------------------
@@ -345,6 +391,12 @@ ThreadTest()
         break;
     case 30:
         MailboxTest1();
+        break;
+    case 31:
+        MailboxTest2();
+        break;
+    case 32:
+        MailboxTest3();
         break;
     case 50:
         JoinTest1();
