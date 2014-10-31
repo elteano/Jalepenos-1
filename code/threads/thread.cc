@@ -202,6 +202,7 @@ void Thread::Join()
         DEBUG('t', "Parent '%s': 'Oh, not finished yet... Need to wait...\n", currentThread->getName());
         c_join->Wait(lock); // hold until the thread finishes
     }
+    printf("join finished bitch");
 
     DEBUG('t', "Parent '%s': 'Okay, time to go.'\n", currentThread->getName());
     lock->Release();
