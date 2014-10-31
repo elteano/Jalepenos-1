@@ -359,6 +359,64 @@ void JoinTest2(){
 
     printf("Perfect exit of JoinTest2...\n");
 }
+
+//----------------------------------------------------------------------
+// Priority tests
+//----------------------------------------------------------------------
+
+void PriorityYieldTask(int ignore)
+{
+    DEBUG('t', "Entering empty task with \"%s\" priority %d.\n",
+            currentThread->getName(), currentThread->getPriority());
+    currentThread->Yield();
+    DEBUG('t', "Exiting empty task with \"%s\" priority %d.\n",
+            currentThread->getName(), currentThread->getPriority());
+}
+
+void PriorityEmptyTask(int ignore)
+{
+    DEBUG('t', "Empty task on thread \"%s\" at priority %d.\n",
+            currentThread->getName(), currentThread->getPriority());
+}
+
+void PriorityOrderTest()
+{
+    DEBUG('t', "Entering PriorityOrderYieldTest.\n");
+    DEBUG('t', "Expected order is main->P1->P3->P5->main.\n");
+    Thread * t1 = new Thread("P1");
+    t1->setPriority(1);
+    t1->Fork(PriorityEmptyTask, 0);
+    Thread * t5 = new Thread("P5");
+    t5->setPriority(5);
+    t5->Fork(PriorityEmptyTask, 0);
+    Thread * t3 = new Thread("P3");
+    t3->setPriority(3);
+    t3->Fork(PriorityEmptyTask, 0);
+    currentThread->setPriority(8);
+    DEBUG('t', "Main thread yielding to next thread as priority %d.\n",
+            currentThread->getPriority());
+    currentThread->Yield();
+}
+
+void PriorityOrderYieldTest()
+{
+    DEBUG('t', "Entering PriorityOrderYieldTest.\n");
+    DEBUG('t', "Expected order is main->P1->P3->P1->P3->P5->main->P5.\n");
+    Thread * t1 = new Thread("P1");
+    t1->setPriority(1);
+    t1->Fork(PriorityYieldTask, 0);
+    Thread * t5 = new Thread("P5");
+    t5->setPriority(5);
+    t5->Fork(PriorityYieldTask, 0);
+    Thread * t3 = new Thread("P3");
+    t3->setPriority(3);
+    t3->Fork(PriorityYieldTask, 0);
+    currentThread->setPriority(8);
+    DEBUG('t', "Main thread yielding to next thread as priority %d.\n",
+            currentThread->getPriority());
+    currentThread->Yield();
+}
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -397,6 +455,12 @@ ThreadTest()
         break;
     case 32:
         MailboxTest3();
+        break;
+    case 40:
+        PriorityOrderTest();
+        break;
+    case 41:
+        PriorityOrderYieldTest();
         break;
     case 50:
         JoinTest1();
