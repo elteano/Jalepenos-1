@@ -326,14 +326,14 @@ void Whale::Male(){
           (numPendingMatch == 0)){
       maleSnd->Wait(lock);
     }
-
-
-    
+    matchSnd->Signal(lock);
+    femaleSnd->Signal(lock);
 
     numPendingMale--;
 
     lock->Release();
 }
+
 void Whale::Female(){
     lock->Acquire();
     numPendingFemale++;
@@ -342,6 +342,8 @@ void Whale::Female(){
           (numPendingMatch == 0)){
       femaleSnd->Wait(lock);
     }
+    matchSnd->Signal(lock);
+    femaleSnd->Signal(lock);
 
     numPendingFemale--;
 
@@ -356,6 +358,8 @@ void Whale::Matchmaker(){
           (numPendingMale == 0)){
       matchSnd->Wait(lock);
     }
+    femaleSnd->Signal(lock);
+    maleSnd->Signal(lock);
 
     numPendingMatch--;
 
