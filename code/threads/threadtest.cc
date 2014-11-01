@@ -420,6 +420,49 @@ void PriorityOrderYieldTest()
     currentThread->Yield();
 }
 
+void PriorityLockTaskIce(int lock)
+{
+    ((Lock *) lock)->Acquire();
+    currentThread->Yield();
+    printf("Ice ");
+    currentThread->Yield();
+    ((Lock *) lock)->Release();
+}
+
+void PriorityLockTaskCream(int lock)
+{
+    ((Lock *) lock)->Acquire();
+    currentThread->Yield();
+    printf("cream ");
+    ((Lock *) lock)->Release();
+}
+
+void PriorityLockTaskDonuts(int lock)
+{
+    ((Lock *) lock)->Acquire();
+    currentThread->Yield();
+    printf("donuts!\n");
+    ((Lock *) lock)->Release();
+}
+
+void PriorityLockOrderTest()
+{
+    printf("Expected print:\nIce cream donuts!\n");
+    Thread * p1 = new Thread("P1");
+    Thread * p2 = new Thread("P2");
+    Thread * p3 = new Thread("P3");
+    p1->setPriority(1);
+    p2->setPriority(2);
+    p3->setPriority(3);
+    Lock * lock = new Lock("Priority Order");
+    p3->Fork(PriorityLockTaskIce, (int) lock);
+    // Make sure that p3 has a chance to acquire the lock
+    currentThread->Yield();
+    p2->Fork(PriorityLockTaskDonuts, (int) lock);
+    currentThread->Yield();
+    p1->Fork(PriorityLockTaskCream, (int) lock);
+}
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -464,6 +507,9 @@ ThreadTest()
         break;
     case 41:
         PriorityOrderYieldTest();
+        break;
+    case 42:
+        PriorityLockOrderTest();
         break;
     case 50:
         JoinTest1();
