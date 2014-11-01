@@ -1,0 +1,49 @@
+
+Group: Chao Pan, Kevin Einstein, Thomas Tucker, Spencer Woo
+
+
+
+1. Locks and Conditions
+
+We made an acquire and release function. These functions are atomic so
+interrupts were turned on in the beginning and off at the end. Lock put a
+thread into a queue and called sleep to give it a blocked status. Release takes
+it from the queue and puts it into the readytorun list and wakes it from sleep.
+
+2. Mailbox
+
+Used Conditions and Locks. The numPendingReqs and numPendingSends are what we
+used to keep track if there was a sender or receiver. That decided whether to
+wait the thread or to continue executing it. To handle the situation with
+multiple senders and receivers, we used locks and a buffer.  This let us append
+into the buffer and remove one at a time.
+
+
+3. Join
+
+Join makes the parent wait for the child to finish executing. It does this
+through the use of Semaphores; joinSignal is used to make the waiting thread
+wait until the thread waited upon is ready to die, and mayDie is used to make
+the thread waited upon wait until it is joined.
+
+4. Priorities
+
+Priority creates a priority for threads. Priorities can be changed or accessed
+using a getter and setter method. We used sorted insert to insert threads into
+a list, which became sorted by priority. When FindNextToRun is called, it takes
+the thread at the head of that list and executes it.
+
+5. Whales
+
+Used Conditions and Locks.  numPendingMale, numPendingFemale, and
+numPendingMatch are used to determine whether or not a match was made.  In the
+case there isn't a match the thread waits, instead of executing and signalling
+for a match.
+
+6. Summary
+
+Everybody in the group contributed to the project. Tests were shared and edited
+by everybody. Kevin worked on Locks, Condition, Join, and Mailbox, Chao worked
+on Mailbox, testing.  Spencer worked on Whale and Mailbox, Thomas worked on
+Whales, Join, Mailbox, Priorities. 
+
