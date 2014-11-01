@@ -504,6 +504,20 @@ void WhaleTest()
     currentThread->Yield();
 }
 
+void WhaleMaidenTest()
+{
+    whale = new Whale("Da Whale");
+    Thread * wmale = new Thread("Male");
+    Thread * wfemale = new Thread("Female");
+    Thread * wfemale2 = new Thread("Extra Female");
+    Thread * wmatch = new Thread("Matchmaker");
+    wmale->Fork(MaleTest, 0);
+    wfemale->Fork(FemaleTest, 0);
+    wfemale2->Fork(FemaleTest, 0);
+    wmatch->Fork(MatchTest, 0);
+    currentThread->Yield();
+}
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -564,6 +578,9 @@ ThreadTest()
         break;
     case 60:
         WhaleTest();
+        break;
+    case 61:
+        WhaleMaidenTest();
         break;
     default:
         printf("No test specified.\n");

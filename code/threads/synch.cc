@@ -292,6 +292,8 @@ Whale::Whale(char * debugName){
     numPendingMale = 0;
     numPendingFemale = 0;
     numPendingMatch = 0;
+    numCompleteMale = 0;
+    numCompleteFemale = 0;
 
     name = debugName;
 }
@@ -311,13 +313,13 @@ void Whale::Male(){
 
     while(((numPendingFemale == 0) || 
           (numPendingMatch == 0))
-          && numCompleteMale != 0){
+          || numCompleteMale != 0){
       maleSnd->Wait(lock);
     }
+    numCompleteMale++;
     matchSnd->Signal(lock);
     femaleSnd->Signal(lock);
 
-    numCompleteMale++;
     matchWait->Signal(lock);
 
     lock->Release();
@@ -329,13 +331,13 @@ void Whale::Female(){
 
     while(((numPendingMale == 0) || 
           (numPendingMatch == 0))
-          && numCompleteFemale != 0){
+          || numCompleteFemale != 0){
       femaleSnd->Wait(lock);
     }
-    matchSnd->Signal(lock);
-    femaleSnd->Signal(lock);
-
     numCompleteFemale++;
+    matchSnd->Signal(lock);
+    maleSnd->Signal(lock);
+
     matchWait->Signal(lock);
 
     lock->Release();
@@ -352,9 +354,10 @@ void Whale::Matchmaker(){
     femaleSnd->Signal(lock);
     maleSnd->Signal(lock);
 
-    while (numCompleteMale < 0 && numCompleteFemale < 0)
+    while (numCompleteMale == 0 && numCompleteFemale == 0)
         matchWait->Wait(lock);
     numPendingMale--;
+    numPendingFemale--;
     numCompleteMale--;
     numCompleteFemale--;
     numPendingMatch--;
