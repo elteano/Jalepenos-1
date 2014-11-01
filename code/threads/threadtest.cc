@@ -464,6 +464,47 @@ void PriorityLockOrderTest()
 }
 
 //----------------------------------------------------------------------
+// Whale tests
+// 	Test the whale mating routines
+//----------------------------------------------------------------------
+
+Whale *whale;
+
+void FemaleTest(int ignore)
+{
+    DEBUG('w', "Thread \"%s\" entering Female.\n", currentThread->getName());
+    whale->Female();
+    DEBUG('w', "Thread \"%s\" has mated as a female.\n",
+            currentThread->getName());
+}
+
+void MaleTest(int ignore)
+{
+    DEBUG('w', "Thread \"%s\" entering Male.\n", currentThread->getName());
+    whale->Male();
+    DEBUG('w', "Thread \"%s\" has mated as a male.\n", currentThread->getName());
+}
+
+void MatchTest(int ignore)
+{
+    DEBUG('w', "Thread \"%s\" entering Match.\n", currentThread->getName());
+    whale->Matchmaker();
+    DEBUG('w', "Thread \"%s\" has made a match!\n", currentThread->getName());
+}
+
+void WhaleTest()
+{
+    whale = new Whale("Da Whale");
+    Thread * wmale = new Thread("Male");
+    Thread * wfemale = new Thread("Female");
+    Thread * wmatch = new Thread("Matchmaker");
+    wmale->Fork(MaleTest, 0);
+    wfemale->Fork(FemaleTest, 0);
+    wmatch->Fork(MatchTest, 0);
+    currentThread->Yield();
+}
+
+//----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
 //----------------------------------------------------------------------
@@ -471,6 +512,7 @@ void PriorityLockOrderTest()
 void
 ThreadTest()
 {
+    DebugInit("w");
     switch (testnum) {
     case 1:
         ThreadTest1();
@@ -519,6 +561,9 @@ ThreadTest()
         break;
     case 51:
         JoinTest2();
+        break;
+    case 60:
+        WhaleTest();
         break;
     default:
         printf("No test specified.\n");
