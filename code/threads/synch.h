@@ -153,9 +153,12 @@ class Whale {
         Condition * maleSnd;
         Condition * femaleSnd;
         Condition * matchSnd;
+        Condition * matchWait;
         int numPendingMale;
         int numPendingFemale;
         int numPendingMatch;
+        int numCompleteMale;
+        int numCompleteFemale;
 
     public:
         Whale(char * debugName);
