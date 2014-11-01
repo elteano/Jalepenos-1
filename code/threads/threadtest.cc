@@ -230,29 +230,26 @@ Mailbox sndr("mailbox");
 
 void MailboxSend(int param){
     DEBUG('t', "\"%s\" entering MailboxSend\n", currentThread->getName());
-
-    printf("%s entering MailboxSend : %d\n" , currentThread->getName(), param);
+    printf("sender has sent : %d\n", param);   
     sndr.Send(param);
+     
     DEBUG('t', "\"%s\" exiting MailboxSend\n", currentThread->getName());
 }
 void MailboxReceive(int param){
     int i = 0;
-    printf("%s entering Mailboxreceive\n" , currentThread->getName());
+    //printf("%s entering Mailboxreceive\n" , currentThread->getName());
     sndr.Receive(&i);
-    printf ("%d\n", i);
+    printf ("Receiver has received : %d\n", i);
 }
 
 void MailboxTest1(){
     //DebugInit("i");
-
-    printf("Entering MailboxTest1\n");
+    printf("MailboxTest1: Sender then Receiver\n");
     Thread * t;
-    t = new Thread("OneS");
-    t->Fork(MailboxSend, 1);
-    t = new Thread("OneR");
+    t = new Thread("Sender");
+    t->Fork(MailboxSend, 1347);
+    t = new Thread("Receiver");
     t->Fork(MailboxReceive, 0);
-//    t = new Thread("Two");
-//    t->Fork(MailboxSend, 2);
 }
 
 /*
@@ -260,12 +257,12 @@ void MailboxTest1(){
  * Expected : 
  */
 void MailboxTest2(){
-    printf("Entering MailboxTest2\n");
+    printf("MailboxTest2: Receiver then Sender\n");
     Thread * t;
-    t = new Thread("OneR");
+    t = new Thread("Receiver");
     t->Fork(MailboxReceive, 0);
-    t = new Thread("OneS");
-    t->Fork(MailboxSend, 1);
+    t = new Thread("Sender");
+    t->Fork(MailboxSend, 1337);
 }
 /*
  * Test     : RECEIVE -> RECEIVE -> SEND ->
@@ -276,27 +273,30 @@ void MailboxTest2(){
 void MailboxTest3(){
     DEBUG('t', "Entering MailboxTest3");
     Thread * t;
-    t = new Thread("OneR");
+    t = new Thread("Receiver1");
     t->Fork(MailboxReceive, 0);
-    t = new Thread("TwoR");
+    t = new Thread("Receiver2");
     t->Fork(MailboxReceive, 0);
-
-    t = new Thread("OneS");
-    t->Fork(MailboxSend, 1);
-    t = new Thread("ThreeR");
-    t->Fork(MailboxReceive, 0);
-
-    t = new Thread("TwoS");
-    t->Fork(MailboxSend, 2);
-    t = new Thread("ThreeS");
-    t->Fork(MailboxSend, 3);
-
-    t = new Thread("FourS");
+    t = new Thread("Sender1");
     t->Fork(MailboxSend, 4);
-    t = new Thread("FiveS");
+    t = new Thread("Sender2");
     t->Fork(MailboxSend, 5);
-    t = new Thread("SixS");
-    t->Fork(MailboxSend, 6);
+    t = new Thread("Sender3");
+    t->Fork(MailboxSend, 3);
+}
+void MailboxTest4(){
+    DEBUG('t', "Entering MailboxTest3");
+    Thread * t;
+    t = new Thread("Receiver1");
+    t->Fork(MailboxReceive, 0);
+    t = new Thread("Receiver2");
+    t->Fork(MailboxReceive, 0);
+    t = new Thread("Receiver3");
+    t->Fork(MailboxReceive, 0);
+    t = new Thread("Sender1");
+    t->Fork(MailboxSend, 4);
+    t = new Thread("Sender2");
+    t->Fork(MailboxSend, 5);
 }
 
 //----------------------------------------------------------------------
@@ -501,6 +501,9 @@ ThreadTest()
         break;
     case 32:
         MailboxTest3();
+        break;
+    case 33:
+        MailboxTest4();
         break;
     case 40:
         PriorityOrderTest();

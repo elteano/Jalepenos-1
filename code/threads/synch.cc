@@ -216,6 +216,7 @@ void Condition::Broadcast(Lock* conditionLock) {
 Mailbox::Mailbox(char * debugName){
     buffer = new List();
     lock = new Lock("Mailbox Lock");
+    //lock2 = new Lock("Receiver Lock");
     condLock = new Lock("Condition Lock");
     mailSnd = new Condition("Mail Send");
     mailRcv = new Condition("Mail Receive");
@@ -234,61 +235,39 @@ Mailbox::~Mailbox(){
 }//--- end destructor
 
 void Mailbox::Send(int message){
-/*
-    lock->Acquire();
-    ++numPendingSends;
-    lock->Release();
-    condLock->Acquire();
-    if (numPendingRecs == 0) {
-      mailRcv->Wait(condLock);
-    } else {
-      mailSnd->Signal(condLock);
-    }
-    if (!copyComplete)
-      mailCpyDone->Wait(condLock);
-    condLock->Release();
-    lock->Acquire();
-    --numPendingSends;
-    lock->Release();*/
-
     
     lock->Acquire();
     DEBUG('t', "Trying to send\n");
-    printf("Trying to send\n");
     numPendingSends++;
-    //printf("\n\n%d\n\n", message); 
-    
-    buffer->Append((void *)&message);
+    int *v = new int(message);
+    buffer->Append((void *)v);
+
     while(numPendingRecs == 0){
       mailSnd->Wait(lock);
     }
-    printf("Sending\n");
+    mailRcv->Signal(lock);
     DEBUG('t', "Sending\n");
 
-    mailRcv->Signal(lock);
     numPendingRecs--;
     lock->Release();
+
 }//--- end routine Send
 
 void Mailbox::Receive(int * message){
     lock->Acquire();
     DEBUG('t', "Trying to receive\n");
-    printf("Trying to receive\n");
     numPendingRecs++;
- 
     while(numPendingSends == 0){
       mailRcv->Wait(lock);
     }
-    printf("Receiving\n");
     DEBUG('t', "Receiving\n");
 
     *message =  *(int*) buffer->Remove();
     //printf("*message = %d\n", *message);
-    
     mailSnd->Signal(lock);
     numPendingSends--;
     lock->Release();
-    
+
 }//--- end routine Receive
 
 char * Mailbox::getName(){
