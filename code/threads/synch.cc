@@ -67,7 +67,7 @@ Semaphore::P()
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
     while (value == 0) {      // semaphore not available
-        queue->Append((void *)currentThread); // so go to sleep
+        queue->SortedInsert((void *)currentThread, currentThread->getPriority()); // so go to sleep
         currentThread->Sleep();
     }
     value--;          // semaphore available,
@@ -119,7 +119,7 @@ void Lock::Acquire() {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     ASSERT(!isHeldByCurrentThread());
     while(isLocked){
-        queue->Append((void *)currentThread);
+        queue->SortedInsert((void *)currentThread, currentThread->getPriority());
         currentThread->Sleep();
     }
     isLocked = true;
@@ -175,7 +175,7 @@ void Condition::Wait(Lock* conditionLock) {
     
     conditionLock->Release();
     DEBUG('t', "Condition '%s': Lock surrendered...\n", getName());
-    queue->Append((void *)currentThread);
+    queue->SortedInsert((void *)currentThread, currentThread->getPriority());
     
     currentThread->Sleep();
     conditionLock->Acquire();
