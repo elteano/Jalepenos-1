@@ -25,6 +25,9 @@ public:
     // stored in the file "executable"
     ~AddrSpace();			// De-allocate an address space
 
+    // Create an address space, allowing for failure
+    static AddrSpace* Initialize(OpenFile *executable);
+
     void InitRegisters();		// Initialize user-level CPU registers,
     // before jumping to user code
 
