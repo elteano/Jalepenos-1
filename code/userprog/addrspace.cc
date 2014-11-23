@@ -107,6 +107,56 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // and the stack segment
     bzero(machine->mainMemory, size);
 
+/*
+	unsigned int codeSize, pageNum, pageCount, file_offset, size, numPhysPages;
+	int virt_addr;
+	int * phys_addr;
+
+
+	virt_addr = noffH.initData.virtualAddr;
+	//&(machine->mainMemory[noffH.initData.virtualAddr]);
+
+	if(virt_addr < 0){
+		//error
+	}
+
+	pageNum = (unsigned) virt_addr / PageSize;
+	file_offset = (unsigned) virt_addr % PageSize;
+	pageCount = &pageTable[pageNum];
+
+	if(pageCount >= numPhysPages){
+		//error
+	}
+
+	*phys_addr = pageCount * PageSize + file_offset;
+
+	size = PageSize;
+	
+*/
+
+    /*
+
+      while(still code (or data) in executable file){
+
+        if section start address not on a page boundary
+          load first fragment until reach page boundary
+
+        load whole pages of the section
+
+
+        file_off = determine current offset into executable file;
+        virt_addr = determine virtual address that code loaded
+        phys_addr = convert virt_addr to physical (pointer into
+                    machine->mainMemory) using page table;
+        size = PageSize;
+        executable->ReadAt(phys_addr, size, file_off);
+
+
+        
+        end of segment, not full page, load remaining frag
+      }
+    */
+
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
@@ -120,6 +170,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
                            noffH.initData.size, noffH.initData.inFileAddr);
     }
+    
+
 }
 
 //----------------------------------------------------------------------
