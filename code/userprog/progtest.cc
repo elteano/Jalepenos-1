@@ -13,6 +13,7 @@
 #include "console.h"
 #include "addrspace.h"
 #include "synch.h"
+#include "memmanage.h"
 
 //----------------------------------------------------------------------
 // StartProcess
@@ -25,12 +26,13 @@ StartProcess(char *filename)
 {
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
+    MemoryManager* memmanage = new MemoryManager(NumPhysPages);
 
     if (executable == NULL) {
         printf("Unable to open file %s\n", filename);
         return;
     }
-    space = new AddrSpace(executable);
+    space = AddrSpace::Initialize(executable, memmanage);
     currentThread->space = space;
 
     delete executable;			// close file
