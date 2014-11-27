@@ -177,8 +177,6 @@ AddrSpace::Initialize(OpenFile *executable, MemoryManager *memmanage)
         size = PageSize;
         executable->ReadAt(phys_addr, size, file_off);
 
-
-        
         end of segment, not full page, load remaining frag
       }
     */
@@ -196,7 +194,6 @@ AddrSpace::Initialize(OpenFile *executable, MemoryManager *memmanage)
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
                            noffH.initData.size, noffH.initData.inFileAddr);
     }
-    
 
     return ret;
 }
