@@ -149,6 +149,7 @@ Initialize(int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
+    memmanage = new MemoryManager(NumPhysPages);
 #endif
 
 #ifdef FILESYS
@@ -178,6 +179,7 @@ Cleanup()
 
 #ifdef USER_PROGRAM
     delete machine;
+    delete memmanage;
 #endif
 
 #ifdef FILESYS_NEEDED

@@ -32,7 +32,7 @@ StartProcess(char *filename)
         printf("Unable to open file %s\n", filename);
         return;
     }
-    space = AddrSpace::Initialize(executable, memmanage);
+    space = AddrSpace::Initialize(executable);
     currentThread->space = space;
 
     delete executable;			// close file

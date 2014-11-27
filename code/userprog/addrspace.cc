@@ -23,6 +23,8 @@
 #include <strings.h>
 #endif
 
+MemoryManager * memmanage;
+
 //----------------------------------------------------------------------
 // SwapHeader
 // 	Do little endian to big endian conversion on the bytes in the
@@ -84,7 +86,7 @@ AddrSpace::~AddrSpace()
 //----------------------------------------------------------------------
 
 AddrSpace*
-AddrSpace::Initialize(OpenFile *executable, MemoryManager *memmanage)
+AddrSpace::Initialize(OpenFile *executable)
 {
     AddrSpace* ret = new AddrSpace(NULL);
 

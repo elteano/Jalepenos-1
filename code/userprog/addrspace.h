@@ -19,6 +19,8 @@
 
 #define UserStackSize		1024 	// increase this as necessary!
 
+extern MemoryManager * memmanage;
+
 class AddrSpace {
 public:
     AddrSpace(OpenFile *executable);	// Create an address space,
@@ -27,7 +29,7 @@ public:
     ~AddrSpace();			// De-allocate an address space
 
     // Create an address space, allowing for failure
-    static AddrSpace* Initialize(OpenFile *executable, MemoryManager *memmanage);
+    static AddrSpace* Initialize(OpenFile *executable);
 
     void InitRegisters();		// Initialize user-level CPU registers,
     // before jumping to user code
