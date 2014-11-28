@@ -53,10 +53,13 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
 
-    if ((which == SyscallException) && (type == SC_Halt)) {
+    if ((which == SyscallException) && (type == SC_Halt))
+    {
         DEBUG('a', "Shutdown, initiated by user program.\n");
         interrupt->Halt();
-    } else if ((which == SyscallException) && (type == SC_Exec)) {
+    }
+    else if ((which == SyscallException) && (type == SC_Exec))
+    {
         DEBUG('a', "User program called Exec.\n");
         char input[1024];
         int addr = machine->ReadRegister(4);
@@ -81,13 +84,17 @@ ExceptionHandler(ExceptionType which)
         // TODO: actually fork
         // TODO: write useful value
         machine->WriteRegister(2, 0);
-    } else if ((which == SyscallException) && (type == SC_Exit)) {
+    }
+    else if ((which == SyscallException) && (type == SC_Exit))
+    {
         DEBUG('a', "Exit, initiated by user program.\n");
         int status = machine->ReadRegister(4);
         //TODO: clear out the process's memory
         printf("Process exiting with status %d.\n", status);
         currentThread->Finish();
-    } else {
+    }
+    else
+    {
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
@@ -96,3 +103,4 @@ ExceptionHandler(ExceptionType which)
     int pcAfter = machine->ReadRegister(NextPCReg) + 4;
     machine->WriteRegister(NextPCReg, pcAfter);
 }
+
