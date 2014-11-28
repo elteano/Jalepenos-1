@@ -56,8 +56,43 @@ ExceptionHandler(ExceptionType which)
     if ((which == SyscallException) && (type == SC_Halt)) {
         DEBUG('a', "Shutdown, initiated by user program.\n");
         interrupt->Halt();
+    } else if ((which == SyscallException) && (type == SC_Exec)) {
+        DEBUG('a', "User program called Exec.\n");
+        char input[1024];
+        int addr = machine->ReadRegister(4);
+        // Read file name from input
+        int c;
+        int v;
+        for (c = 0; c < 1024; ++c)
+        {
+          machine->ReadMem(addr+c, 1, &v);
+          input[c] = v;
+          if (v == 0)
+            break;
+        }
+        if (v != 0)
+        {
+          // Input too long! Abort.
+          machine->WriteRegister(2, -1);
+          printf("Exec input too long.");
+          ASSERT(FALSE);
+        }
+        DEBUG('a', "User wants to execute %s.\n", input);
+        // TODO: actually fork
+        // TODO: write useful value
+        machine->WriteRegister(2, 0);
+    } else if ((which == SyscallException) && (type == SC_Exit)) {
+        DEBUG('a', "Exit, initiated by user program.\n");
+        int status = machine->ReadRegister(4);
+        //TODO: clear out the process's memory
+        printf("Process exiting with status %d.\n", status);
+        currentThread->Finish();
     } else {
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
+    // If we're here, it means nothing went wrong.
+    // Increment the PC and continue.
+    int pcAfter = machine->ReadRegister(NextPCReg) + 4;
+    machine->WriteRegister(NextPCReg, pcAfter);
 }
