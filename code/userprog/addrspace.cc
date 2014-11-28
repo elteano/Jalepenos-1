@@ -118,7 +118,6 @@ AddrSpace::Initialize(OpenFile *executable)
     for (i = 0; i < ret->numPages; i++) {
         ret->pageTable[i].virtualPage = i;
         // Request page from memory manager
-        // TODO have a memory manager from which we may allocate pages
         ret->pageTable[i].physicalPage = memmanage->AllocPage();
         // Ensure that we were given a page
         ASSERT(ret->pageTable[i].physicalPage >= 0);
