@@ -161,23 +161,26 @@ AddrSpace::Initialize(OpenFile *executable)
     if (file_offset > 0)
     {
       ++firstWholePage;
-      int physLocation = pageNum * PageSize + file_offset;
+      int physLocation = ret->pageTable[pageNum].physicalPage * PageSize
+        + file_offset;
       executable->ReadAt(&(machine->mainMemory[physLocation]),
           PageSize - file_offset, noffH.code.inFileAddr);
     }
     unsigned int cPage;
     for (cPage = 0; cPage < numWholeCodePages; ++cPage)
     {
-      int physLocation = (pageNum + cPage) * PageSize;
+      int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
+        * PageSize;
       executable->ReadAt(&(machine->mainMemory[physLocation]),
-          PageSize, firstWholePage + cPage * PageSize);
+          PageSize, noffH.code.inFileAddr + cPage * PageSize);
     }
     // Copy all remaining data into physical memory
     if (codeOverflow > 0)
     {
-      int physLocation = (pageNum + cPage) * PageSize;
+      int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
+        * PageSize;
       executable->ReadAt(&(machine->mainMemory[physLocation]),
-          codeOverflow, firstWholePage + cPage * PageSize);
+          codeOverflow, noffH.code.inFileAddr + cPage * PageSize);
     }
 
     virt_addr = noffH.initData.virtualAddr;
@@ -187,33 +190,39 @@ AddrSpace::Initialize(OpenFile *executable)
     pageNum = (unsigned) virt_addr / PageSize;
     file_offset = (unsigned) virt_addr % PageSize;
 
-    // Copy all data information into physical memory
-    unsigned int numWholeDataPages = noffH.initData.size / PageSize;
-    firstWholePage = pageNum;
-    int dataOverflow = noffH.initData.size % PageSize - file_offset;
-    if (dataOverflow < 0)
+    if (noffH.initData.size > 0)
     {
-      dataOverflow += PageSize;
-    }
-    // If we don't start at the beginning of a page, write the first partial
-    if (file_offset > 0)
-    {
-      ++firstWholePage;
-      int physLocation = pageNum * PageSize + file_offset;
-      executable->ReadAt(&(machine->mainMemory[physLocation]),
-          PageSize - file_offset, noffH.initData.inFileAddr);
-    }
-    for (cPage = 0; cPage < numWholeDataPages; ++cPage)
-    {
-      int physLocation = (pageNum + cPage) * PageSize;
-      executable->ReadAt(&(machine->mainMemory[physLocation]),
-          PageSize, firstWholePage + cPage * PageSize);
-    }
-    if (dataOverflow > 0)
-    {
-      int physLocation = (pageNum + cPage) * PageSize;
-      executable->ReadAt(&(machine->mainMemory[physLocation]),
-          dataOverflow, firstWholePage + cPage * PageSize);
+      // Copy all data information into physical memory
+      unsigned int numWholeDataPages = noffH.initData.size / PageSize;
+      firstWholePage = pageNum;
+      int dataOverflow = noffH.initData.size % PageSize - file_offset;
+      if (dataOverflow < 0)
+      {
+        dataOverflow += PageSize;
+      }
+      // If we don't start at the beginning of a page, write the first partial
+      if (file_offset > 0)
+      {
+        ++firstWholePage;
+        int physLocation = ret->pageTable[pageNum].physicalPage * PageSize
+          + file_offset;
+        executable->ReadAt(&(machine->mainMemory[physLocation]),
+            PageSize - file_offset, noffH.initData.inFileAddr);
+      }
+      for (cPage = 0; cPage < numWholeDataPages; ++cPage)
+      {
+        int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
+          * PageSize;
+        executable->ReadAt(&(machine->mainMemory[physLocation]),
+            PageSize, noffH.initData.inFileAddr + cPage * PageSize);
+      }
+      if (dataOverflow > 0)
+      {
+        int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
+          * PageSize;
+        executable->ReadAt(&(machine->mainMemory[physLocation]),
+            dataOverflow, noffH.initData.inFileAddr + cPage * PageSize);
+      }
     }
     return ret;
 }
