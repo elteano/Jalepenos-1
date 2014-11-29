@@ -283,3 +283,19 @@ void AddrSpace::RestoreState()
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
 }
+
+
+//----------------------------------------------------------------------
+// AddrSpace::ClearState
+//  Delete the entire memory footprint of the application, allowing it to run 
+//  while taking up no memory whatsoever.
+//----------------------------------------------------------------------
+
+void AddrSpace::ClearState()
+{
+    for (unsigned int page = 0; page < numPages; ++page)
+    {
+        memmanage->FreePage(pageTable[page].physicalPage);
+    }
+}
+

@@ -117,6 +117,12 @@ public:
     void Print() {
         printf("%s, ", name);
     }
+    void setExitStatus(int st) {
+        exitStatus = st;
+    }
+    int getExitStatus() {
+        return exitStatus;
+    }
 
 private:
     // some of the private data for this class is listed above
@@ -126,6 +132,7 @@ private:
     // (If NULL, don't deallocate stack)
     ThreadStatus status;		// ready, running or blocked
     char* name;
+    int exitStatus;
 
     void StackAllocate(VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.

@@ -89,8 +89,9 @@ ExceptionHandler(ExceptionType which)
     {
         DEBUG('a', "Exit, initiated by user program.\n");
         int status = machine->ReadRegister(4);
-        //TODO: clear out the process's memory
+        currentThread->space->ClearState();
         printf("Process exiting with status %d.\n", status);
+        currentThread->setExitStatus(0);
         currentThread->Finish();
     }
     else
