@@ -48,8 +48,21 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
-void
-ExceptionHandler(ExceptionType which)
+void Destroy(){
+    int status = machine->ReadRegister(4);
+
+    currentThread->space->ClearState();
+    printf("Process exiting with status %d.\n", status);
+    currentThread->setExitStatus(0);
+    currentThread->Finish();
+
+    //remove process?
+    //currentThread->Finish();
+    //else interrupt->Halt();
+   
+}
+
+void ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
 
@@ -104,7 +117,7 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         Destroy();
     }
     else if(which == ReadOnlyException){
-        DEBUG('a', "ReadOnlyException : Write attempted to page marked "read-only".\n");
+        DEBUG('a', "ReadOnlyException : Write attempted to page marked \"read-only\".\n");
         Destroy();
     }
     else if(which == BusErrorException){
@@ -123,9 +136,6 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         DEBUG('a', "IllegalInstrException : Unimplemented or reserved instruction.\n");
         Destroy();
     }
-    else if(which == NumExceptionTypes){
-
-    }
     else
     {
         printf("Unexpected user mode exception %d %d\n", which, type);
@@ -137,15 +147,4 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
     machine->WriteRegister(NextPCReg, pcAfter);
 }
 
-void Destroy(){
-    int status = machine->ReadRegister(4);
 
-    currentThread->space->ClearState();
-    printf("Process exiting with status %d.\n", status);
-    currentThread->setExitStatus(0);
-    currentThread->Finish();
-
-    //remove process?
-    //currentThread->Finish();
-    //else interrupt->Halt();
-}
