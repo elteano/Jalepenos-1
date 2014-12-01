@@ -94,6 +94,38 @@ ExceptionHandler(ExceptionType which)
         currentThread->setExitStatus(0);
         currentThread->Finish();
     }
+/* 
+Other exceptions to check for : 
+PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException, OverflowException, IllegalInstrException
+*/
+
+    else if(which == PageFaultException){
+        DEBUG('a', "PageFaultException : No valid translation found.\n");
+        Destroy();
+    }
+    else if(which == ReadOnlyException){
+        DEBUG('a', "ReadOnlyException : Write attempted to page marked "read-only".\n");
+        Destroy();
+    }
+    else if(which == BusErrorException){
+        DEBUG('a', "BusErrorException : Invalid physical address translation.\n");
+        Destroy();
+    }
+    else if(which == AddressErrorException){
+        DEBUG('a', "AddressErrorException : Unaligned reference to address space.\n");
+        Destroy();
+    }
+    else if(which == OverflowException){
+        DEBUG('a', "OverflowException : Integer overflow in add or sub.\n");
+        Destroy();
+    }
+    else if(which == IllegalInstrException){
+        DEBUG('a', "IllegalInstrException : Unimplemented or reserved instruction.\n");
+        Destroy();
+    }
+    else if(which == NumExceptionTypes){
+
+    }
     else
     {
         printf("Unexpected user mode exception %d %d\n", which, type);
@@ -105,3 +137,15 @@ ExceptionHandler(ExceptionType which)
     machine->WriteRegister(NextPCReg, pcAfter);
 }
 
+void Destroy(){
+    int status = machine->ReadRegister(4);
+
+    currentThread->space->ClearState();
+    printf("Process exiting with status %d.\n", status);
+    currentThread->setExitStatus(0);
+    currentThread->Finish();
+
+    //remove process?
+    //currentThread->Finish();
+    //else interrupt->Halt();
+}
