@@ -25,6 +25,8 @@
 #include "system.h"
 #include "syscall.h"
 
+void NewProcess(int ignore);
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -94,9 +96,32 @@ void ExceptionHandler(ExceptionType which)
           ASSERT(FALSE);
         }
         DEBUG('a', "User wants to execute %s.\n", input);
-        // TODO: actually fork
-        // TODO: write useful value
-        machine->WriteRegister(2, 0);
+
+        Thread* fork = new Thread("Exec Spawn");
+
+        // code segment brought in from StartProcess
+        OpenFile *executable = fileSystem->Open(input);
+
+        if (executable != NULL)
+        {
+          AddrSpace *space;
+          space = AddrSpace::Initialize(executable);
+          fork->space = space;
+
+          delete executable;			// close file
+
+          // pre-increment numprogs
+          threadlist[++numprogs] = fork;
+          fork->Fork(NewProcess, 0);
+
+          machine->WriteRegister(2, numprogs);
+        }
+        else
+        {
+          printf("Unable to open file %s\n", input);
+          // 0 indicates failure
+          machine->WriteRegister(2, 0);
+        }
     }
     else if ((which == SyscallException) && (type == SC_Exit))
     {
@@ -147,4 +172,20 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
     machine->WriteRegister(NextPCReg, pcAfter);
 }
 
+//----------------------------------------------------------------------
+// NewProcess
+//  Function for telling a thread to initialize itself.
+//
+//  This function expects that the address space has already been
+//  initialized; if it has not, then this function will have undefined
+//  behavior.
+//----------------------------------------------------------------------
+void NewProcess(int ignore)
+{
+    currentThread->space->InitRegisters(); // set the initial register values
+    currentThread->space->RestoreState(); // load page table register
+
+    machine->Run(); // jump to the user progam
+    ASSERT(FALSE);  // Above call should never return
+}
 
