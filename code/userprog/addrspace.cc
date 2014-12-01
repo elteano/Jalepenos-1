@@ -214,14 +214,14 @@ AddrSpace::Initialize(OpenFile *executable)
         int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
           * PageSize;
         executable->ReadAt(&(machine->mainMemory[physLocation]),
-            PageSize, noffH.initData.inFileAddr + cPage * PageSize);
+            PageSize, noffH.initData.inFileAddr + (PageSize - file_offset) + cPage * PageSize);
       }
       if (dataOverflow > 0)
       {
         int physLocation = ret->pageTable[firstWholePage + cPage].physicalPage
           * PageSize;
         executable->ReadAt(&(machine->mainMemory[physLocation]),
-            dataOverflow, noffH.initData.inFileAddr + cPage * PageSize);
+            dataOverflow, noffH.initData.inFileAddr + (PageSize - file_offset) + cPage * PageSize);
       }
     }
     return ret;
