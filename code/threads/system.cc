@@ -29,11 +29,6 @@ SynchDisk   *synchDisk;
 
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
-int numprogs; // number of programs created by Exec; only goes up
-/* list of threads created by Exec, indexed by SpaceId.
- * 0 index is always null.
- */
-Thread *threadlist[MAX_PROGS + 1];
 #endif
 
 #ifdef NETWORK
@@ -155,6 +150,7 @@ Initialize(int argc, char **argv)
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     memmanage = new MemoryManager(NumPhysPages);
+    threadlist = new Table(MAX_PROGS);
 #endif
 
 #ifdef FILESYS
