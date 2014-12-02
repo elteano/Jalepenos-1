@@ -7,6 +7,17 @@
 #include "synchconsole.h"
 
 
+
+static void SynchConsoleRead(int i){
+     SynchConsole *synchConsole = (SynchConsole *)i;
+     synchConsole->ReadAvail();
+
+}
+static void SynchConsoleWrite(int i){
+     SynchConsole *synchConsole = (SynchConsole *)i;
+     synchConsole->WriteDone();
+
+}
 //----------------------------------------------------------------------
 // SynchDisk::SynchConsole
 // 	Initialize the synchronous interface to the physical disk, in turn
@@ -18,10 +29,15 @@
 
 SynchConsole::SynchConsole(char* name)
 {
-    semaphore = new Semaphore("synch console", 0);
-    lock = new Lock("synch console lock");
+    semaphoreOutput = new Semaphore("synch console output", 0);
+    semaphoreInput = new Semaphore("synch console input", 0);
+    
+    lockOutput = new Lock("synch console output lock");
+    lockInput = new Lock("synch console input lock");
+
 //    console = new Console(name, ConsoleRequestDone, (int) this);
-    console = new Console(null, null, console_read, console_write, (int) this);
+//    console = new Console(null, null, console_read, console_write, (int) this);
+    console = new Console(readFile, writeFile, SynchConsoleRead, SynchConsoleWrite, (int) this);
 }
 
 //----------------------------------------------------------------------
@@ -33,33 +49,38 @@ SynchConsole::SynchConsole(char* name)
 SynchConsole::~SynchConsole()
 {
     delete console;
-    delete lock;
-    delete semaphore;
+    delete lockOutput;
+    delete lockInput;
+
+    delete semaphoreOutput;
+    delete semaphoreInput;
+
 }
 
 //----------------------------------------------------------------------
-// SynchConsole::ReadConsole
+// SynchConsole::ReadChar
 // 	Read the contents of console into a buffer.  Return only
 //	after the data has been read.
 //
 //	"data" -- the buffer to hold the contents of the disk sector
 //----------------------------------------------------------------------
 
-void
-SynchConsole::ReadConsole(char* data)
+char
+SynchConsole::ReadChar()
 {
-    lock->Acquire();		
+    lockInput->Acquire();		
+    semaphoreInput->P();			// wait for interrupt
 
-//
-    //console = new Console(null, null, (int) this);
+    char ch;
+    ch = console->GetChar();
 
-    console->GetChar();
-    semaphore->P();			// wait for interrupt
-    lock->Release();
+    lockInput->Release();
+
+    return ch;
 }
 
 //----------------------------------------------------------------------
-// SynchConsole::WriteConsole
+// SynchConsole::WriteChar
 // 	Write the contents of a buffer into a disk sector.  Return only
 //	after the data has been written.
 //
@@ -67,14 +88,13 @@ SynchConsole::ReadConsole(char* data)
 //----------------------------------------------------------------------
 
 void
-SynchConsole::WriteConsole( char* data)
+SynchConsole::WriteChar( char* data)
 {
-    lock->Acquire();			// only one disk I/O at a time
+    lockOutput->Acquire();			// only one disk I/O at a time
 
-//Write(buffer, i, ConsoleOutput);
     console->PutChar(data);
-    semaphore->P();			// wait for interrupt
-    lock->Release();
+    semaphoreOutput->P();			// wait for interrupt
+    lockOutput->Release();
 }
 
 //----------------------------------------------------------------------
@@ -85,10 +105,8 @@ SynchConsole::WriteConsole( char* data)
 void
 SynchConsole::ReadAvail()
 {
-   // semaphore->();
+    semaphoreInput->V();
 }
-
-
 
 //----------------------------------------------------------------------
 // SynchConsole::WriteDone
@@ -98,5 +116,5 @@ SynchConsole::ReadAvail()
 void
 SynchConsole::WriteDone()
 {
-    semaphore->V();
+    semaphoreOutput->V();
 }

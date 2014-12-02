@@ -19,17 +19,19 @@ public:
     // by initializing the raw Console.
     ~SynchConsole();			// De-allocate the synch console data
 
-    void ReadConsole(char* data);
-    void WriteConsole(char* data);
+    char ReadChar();
+    void WriteChar(char* data);
 
     void ReadAvail();
     void WriteDone();
 
 private:
     Console *console;		  		// Raw console device
-    Semaphore *semaphore; 		// To synchronize requesting thread
+    Semaphore *semaphoreInput; 		// To synchronize requesting thread
+    Semaphore *semaphoreOutput;
     // with the interrupt handler
-    Lock *lock;		  		// Only one read/write request
+    Lock *lockInput;		  		// Only one read/write request
+    Lock *lockOutput;		  		// Only one read/write request
     // can be sent to the disk at a time
 };
 
