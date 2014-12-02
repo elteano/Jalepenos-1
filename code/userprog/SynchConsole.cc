@@ -97,10 +97,48 @@ SynchConsole::WriteChar( char* data)
     lockOutput->Release();
 }
 
+
+int
+SynchConsole::ReadLine(char * data, int size){
+    lockInput->Acquire();
+
+    char c;
+    int total_read = 0;
+
+    while((c != '\n') && (num_read < size)){
+
+        semaphoreInput->P();
+        c = console->GetChar();
+        
+        *data = c;
+        data++;
+        total_read++;
+
+    }
+
+    lockInput->Release();
+
+    return total_read;
+}
+
+void
+SynchConsole::WriteLine(char * data){
+    lockOutput->Acquire();
+    while(*data != '\0'){
+       console->PutChar(data[0]);
+       data++;
+       semaphoreOutput->P();
+    }
+
+    lockOutput->Release();
+
+}
+
 //----------------------------------------------------------------------
-// SynchConsole::WriteDone
+// SynchConsole::ReadAvail
 // 	
 //----------------------------------------------------------------------
+
 
 void
 SynchConsole::ReadAvail()

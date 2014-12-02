@@ -20,7 +20,10 @@ public:
     ~SynchConsole();			// De-allocate the synch console data
 
     char ReadChar();
-    void WriteChar(char* data);
+    void WriteChar(char*);
+
+    int ReadLine(char*, int);
+    void WriteLine(char*);
 
     void ReadAvail();
     void WriteDone();
