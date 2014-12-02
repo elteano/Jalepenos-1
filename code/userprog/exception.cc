@@ -120,10 +120,10 @@ void ExceptionHandler(ExceptionType which)
 
           // pre-increment numprogs
           // Place our new thread into the list of programs
-          threadlist[++numprogs] = fork;
+          int result = threadlist->Alloc(fork);
           fork->Fork(NewProcess, 0);
 
-          machine->WriteRegister(2, numprogs);
+          machine->WriteRegister(2, result);
         }
         else
         {
@@ -174,7 +174,7 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
     {
         printf("User attempting to join. Unsupported.\n");
         int id = machine->ReadRegister(4);
-        threadlist[id]->Join();
+        ((Thread* )threadlist->Get(id))->Join();
         int rsult = currentThread->getExitStatus();
         machine->WriteRegister(2, rsult);
     }
