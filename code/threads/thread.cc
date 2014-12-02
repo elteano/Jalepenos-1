@@ -318,6 +318,7 @@ void Thread::Join()
   ASSERT(this != currentThread);
   // This will wait until thread finished
   joinSignal->P();
+  currentThread->exitStatus = this->exitStatus;
   mayDie->V();
 }
 

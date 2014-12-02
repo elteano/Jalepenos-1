@@ -29,7 +29,7 @@ SynchDisk   *synchDisk;
 
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
-int numprogs = 1; // number of programs created by Exec; only goes up
+int numprogs; // number of programs created by Exec; only goes up
 /* list of threads created by Exec, indexed by SpaceId.
  * 0 index is always null.
  */

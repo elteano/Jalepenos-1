@@ -66,6 +66,9 @@ void Destroy(){
 
 void ExceptionHandler(ExceptionType which)
 {
+    // Increment the PC before doing anything
+    int pcAfter = machine->ReadRegister(PCReg) + 4;
+    machine->WriteRegister(PCReg, pcAfter);
     int type = machine->ReadRegister(2);
 
     if ((which == SyscallException) && (type == SC_Halt))
@@ -91,26 +94,32 @@ void ExceptionHandler(ExceptionType which)
         if (v != 0)
         {
           // Input too long! Abort.
-          machine->WriteRegister(2, -1);
-          printf("Exec input too long.");
-          ASSERT(FALSE);
+          machine->WriteRegister(2, 0);
+          return;
         }
         DEBUG('a', "User wants to execute %s.\n", input);
-
-        Thread* fork = new Thread("Exec Spawn");
+        printf("exec\n");
 
         // code segment brought in from StartProcess
         OpenFile *executable = fileSystem->Open(input);
 
         if (executable != NULL)
         {
+          Thread* fork = new Thread("Exec Spawn", 1);
+
           AddrSpace *space;
           space = AddrSpace::Initialize(executable);
+          if (space == NULL)
+          {
+              machine->WriteRegister(2, 0);
+              return;
+          }
           fork->space = space;
 
           delete executable;			// close file
 
           // pre-increment numprogs
+          // Place our new thread into the list of programs
           threadlist[++numprogs] = fork;
           fork->Fork(NewProcess, 0);
 
@@ -161,15 +170,20 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         DEBUG('a', "IllegalInstrException : Unimplemented or reserved instruction.\n");
         Destroy();
     }
+    else if ((which == SyscallException) && (type == SC_Join))
+    {
+        printf("User attempting to join. Unsupported.\n");
+        int id = machine->ReadRegister(4);
+        threadlist[id]->Join();
+        int rsult = currentThread->getExitStatus();
+        machine->WriteRegister(2, rsult);
+    }
     else
     {
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
     // If we're here, it means nothing went wrong.
-    // Increment the PC and continue.
-    int pcAfter = machine->ReadRegister(NextPCReg) + 4;
-    machine->WriteRegister(NextPCReg, pcAfter);
 }
 
 //----------------------------------------------------------------------
