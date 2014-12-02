@@ -1,0 +1,41 @@
+
+Group: Chao Pan, Kevin Einstein, Thomas Tucker, Spencer Woo
+
+
+
+1. System call handling and multiprogramming
+
+This was implemented by modifying addrspace.cc/h.  We modified addrspace
+to allow multiple processes via AddrSpace::Initialize(OpenFile *executable).
+This employed our memmanage.c/h which is used to track the allocated and
+free physical page numbers via bitmap.h.  Memmanage was made thread safe
+with internal locks and acquiring/releasing.
+
+This is tested with the provided array.c.
+
+2. Exec and Exit
+
+Implemented in syscall.cc/h.
+Exec
+
+Exit
+
+This was tested with the provided exittest.c and exectest.c.
+
+3. Read and Write console system calls
+
+This was implemented by creating and implementing a "SynchConsole"
+class which provides the abstraction for sychronous access to the console.
+
+
+
+
+4. Handle User Program exceptions
+
+This is to allow the Nachos kernel to handle user program exceptions, including
+system calls.  Essentially this is to make it so the user can never crash the 
+kernel with commands.
+This was implemented in exceptions.cc, where we check for every type of error
+specified in machine.cc/h.
+
+5. Summary
