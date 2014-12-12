@@ -122,7 +122,7 @@ AddrSpace::Initialize(OpenFile *executable)
         // Ensure that we were given a page
         ASSERT(ret->pageTable[i].physicalPage >= 0);
         // Rest of initialization code is fine
-        ret->pageTable[i].valid = TRUE;
+        ret->pageTable[i].valid = FALSE;
         ret->pageTable[i].use = FALSE;
         ret->pageTable[i].dirty = FALSE;
         ret->pageTable[i].readOnly = FALSE;  // if the code segment was entirely on
@@ -130,14 +130,23 @@ AddrSpace::Initialize(OpenFile *executable)
         // pages to be read-only
     }
 
+    //When a page faults do (1), (2), and (3)
+    //allocate physical frames, but delay loading content
+    //until frames referenced by process
+
     // Zero out all allocated memory
+    // (1) zeros out the physical page frames
     for (unsigned int pageNum = 0; pageNum < ret->numPages; ++pageNum)
     {
       int physPage = ret->pageTable[pageNum].physicalPage;
       bzero(&machine->mainMemory[physPage * PageSize], PageSize);
     }
 
+
+
     // Copy code and data segments into memory
+    // (2) preloads the address space with the code and data segments
+    // (2) from the file
     unsigned int pageNum;
     unsigned int file_offset;
     int virt_addr;
@@ -155,6 +164,11 @@ AddrSpace::Initialize(OpenFile *executable)
     int codeOverflow = noffH.code.size % PageSize - file_offset;
     if (codeOverflow < 0)
     {
+      // "?"
+      // (3) prevents program that require too much memory
+      // (3) You will do this on demand when the process causes
+      // (3) a page fault -- delay loading page frames with content
+      // (3) until actually refernced by process
       codeOverflow += PageSize;
     }
     // If we don't start at the beginning of a page, write the first partial
