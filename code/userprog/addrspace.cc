@@ -227,6 +227,7 @@ AddrSpace::demandpage(int page_num)
         PageSize);
   }
   DEBUG('y', "Number of pages remaining: %d\n", memmanage->NumFreePages());
+  pageTable[page_num].dirty = TRUE;
 
   //1.5.1 mark PTE as valid
   pageTable[page_num].valid = TRUE;
@@ -313,7 +314,9 @@ void AddrSpace::ClearPage()
       if (pageTable[clock_hand].valid && !pageTable[clock_hand].use &&
           pageTable[clock_hand].physicalPage >= 0)
         {
-          printf("Clearing %d.\n", pageTable[clock_hand].physicalPage);
+          printf("Clearing virtual %d, physical %d.\n",
+              pageTable[clock_hand].virtualPage,
+              pageTable[clock_hand].physicalPage);
           backing->PageOut(&pageTable[clock_hand]);
           return;
         }
