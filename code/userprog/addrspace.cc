@@ -208,6 +208,7 @@ AddrSpace::demandpage(int page_num)
 
     stored_executable->ReadAt(&(machine->mainMemory[physLocation]),
         PageSize, noffH.code.inFileAddr + offset);
+    stats->numPageIns += 1; //--- increment counter since we read from exe
   }
   else if(noffH.initData.virtualAddr <= page_addr
       && noffH.initData.virtualAddr + noffH.initData.size > page_addr){
@@ -217,6 +218,7 @@ AddrSpace::demandpage(int page_num)
 
     stored_executable->ReadAt(&(machine->mainMemory[physLocation]),
         PageSize, noffH.initData.inFileAddr + offset);
+    stats->numPageIns += 1; //--- increment counter since we read from exe
   }
   //1.4.3 if pagefault on anything else: zero-fill it 
   else{
@@ -321,6 +323,7 @@ void AddrSpace::ClearPage()
         }
         ++clock_hand;
         clock_hand = clock_hand % numPages;
+        //printf("%d", rand);
     }
 }
 

@@ -42,7 +42,7 @@ Statistics::Print()
     printf("Console I/O: reads %d, writes %d\n", numConsoleCharsRead,
            numConsoleCharsWritten);
     printf("Paging:\tfaults\touts\tins\n");
-    printf("\t%d\t%d\t%d\n", numPageFaults, numPageIns, numPageOuts);
+    printf("\t%d\t%d\t%d\n", numPageFaults, numPageOuts, numPageIns);
     printf("Network I/O: packets received %d, sent %d\n", numPacketsRecvd,
            numPacketsSent);
 }
