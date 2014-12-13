@@ -36,6 +36,11 @@ public:
     int numPacketsSent;		// number of packets sent over the network
     int numPacketsRecvd;	// number of packets received over the network
 
+    //--- ADDED CODE BLOCK
+    int numPageOuts;        //--- the number of page writes to a BackingStore
+    int numPageIns;         //--- the number of page reads from a BackingStore   
+    //--- END ADDED CODE BLOCK
+
     Statistics(); 		// initialize everything to zero
 
     void Print();		// print collected statistics

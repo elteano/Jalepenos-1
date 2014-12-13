@@ -22,6 +22,9 @@ Statistics::Statistics()
     numDiskReads = numDiskWrites = 0;
     numConsoleCharsRead = numConsoleCharsWritten = 0;
     numPageFaults = numPacketsSent = numPacketsRecvd = 0;
+
+    //--- ADDED CODE
+    numPageOuts = numPageIns = 0;
 }
 
 //----------------------------------------------------------------------
