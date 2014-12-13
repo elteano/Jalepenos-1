@@ -86,7 +86,9 @@ void ExceptionHandler(ExceptionType which)
         int v;
         for (c = 0; c < 1024; ++c)
         {
-          machine->ReadMem(addr+c, 1, &v);
+          if (!machine->ReadMem(addr+c, 1, &v)
+              && !machine->ReadMem(addr+c, 1, &v))
+            ASSERT(FALSE);
           input[c] = v;
           if (v == 0)
             break;
