@@ -143,8 +143,7 @@ AddrSpace::Initialize(OpenFile *executable)
 //4 -- into calling a method (FaultedPage) which prepares the page -- different for various addrspace segments
 //this is where we have our normal initialize code for the page frame
 
-//pls talk.
-//I KNOW IT DOESN'T COMPILE BUT I DON'T KNOW WHAT PEOPLE ARE DOING SO I DECIDED TO PUSH
+//Nobody knows what they're doing, so I decided to push
 
 
 
@@ -276,6 +275,28 @@ AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
     }
 
 
+//#5
+
+//something something no for loop
+
+ unsigned int i;
+ for (i = 0; i < ret->numPages; i++) {
+        ret->pageTable[i].virtualPage = i;
+        // Request page from memory manager
+        ret->pageTable[i].physicalPage = memmanage->AllocPage();
+        // Ensure that we were given a page
+        ASSERT(ret->pageTable[i].physicalPage >= 0);
+        // Rest of initialization code is fine
+        ret->pageTable[i].valid = TRUE;
+        ret->pageTable[i].use = FALSE;
+        ret->pageTable[i].dirty = FALSE;
+        ret->pageTable[i].readOnly = FALSE;  // if the code segment was entirely on
+        // a separate page, we could set its
+        // pages to be read-only
+    }
+
+
+   return ret;
 }
 
 //----------------------------------------------------------------------
