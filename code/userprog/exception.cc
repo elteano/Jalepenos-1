@@ -149,33 +149,17 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
     //#3
     else if(which == PageFaultException){
 
+      DebugInit("a");
       // part 1.3
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
-        DEBUG('a', "User program called Exec.\n");
-        char input[1024];
-        int addr = machine->ReadRegister(4);
-        // Read file name from input
-        int c;
-        int v;
-        for (c = 0; c < 1024; ++c)
-        {
-          machine->ReadMem(addr+c, 1, &v);
-          input[c] = v;
-          if (v == 0)
-            break;
-        }
-        if (v != 0)
-        {
-          // Input too long! Abort.
-          machine->WriteRegister(2, 0);
-          return;
-        }
-        DEBUG('a', "User wants to execute %s.\n", input);
-        printf("exec\n"); // i copy pasted this from syscall exec
-        OpenFile *executable = fileSystem->Open(input);
+        DEBUG('a', "PageFAULTEXCEPTION!!.\n");
 
-        AddrSpace::demandpage(executable);
+        int input = machine->ReadRegister(4);
+
+        // TODO determine page number - perhaps this is input?
+        DEBUG('a', "System input is %d.\n", input);
+        currentThread->space->demandpage(input);
         DEBUG('a', "PageFaultException : No valid translation found.\n");
         //Destroy(); part 1.5 might go here
     }

@@ -89,6 +89,7 @@ AddrSpace*
 AddrSpace::Initialize(OpenFile *executable)
 {
     AddrSpace* ret = new AddrSpace(NULL);
+    ret->stored_executable = executable;
 
     NoffHeader noffH;
     unsigned int i, size;
@@ -135,41 +136,64 @@ AddrSpace::Initialize(OpenFile *executable)
 }
 
 
-void
-AddrSpace::demandpage(OpenFile *executable)
+bool
+AddrSpace::demandpage(int page_num)
 {
-//1.4 add demandpage pagefault handler
-AddrSpace* ret = new AddrSpace(NULL);
+  //1.4 add demandpage pagefault handler
+  AddrSpace* ret = new AddrSpace(NULL);
 
-NoffHeader noffH;
-unsigned int i, size;
-//store executable into noffH
-executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+  NoffHeader noffH;
+  int page_addr = page_num * PageSize;
+  //store stored_executable into noffH
+  stored_executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 
-//does something idk if i need this here.
-    if ((noffH.noffMagic != NOFFMAGIC) &&
-            (WordToHost(noffH.noffMagic) == NOFFMAGIC))
-        SwapHeader(&noffH);
-    ASSERT(noffH.noffMagic == NOFFMAGIC);
+  //does something idk if i need this here.
+  if ((noffH.noffMagic != NOFFMAGIC) &&
+      (WordToHost(noffH.noffMagic) == NOFFMAGIC))
+    SwapHeader(&noffH);
+  ASSERT(noffH.noffMagic == NOFFMAGIC);
+  pageTable[page_num].physicalPage = memmanage->AllocPage();
 
-//1.4.1 if pagefault on code: read corresponding code from executable
-if(/*something something noffH.code.virtualaddr*/i==0){
-executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-noffH.code.size,noffH.code.inFileAddr);
+  if (pageTable[page_num].physicalPage < 0)
+  {
+    return false;
+  }
 
+  //1.4.2 if pagefault on data: read data from stored_executable
+  if(noffH.code.virtualAddr <= page_addr
+      && noffH.code.virtualAddr + noffH.code.size > page_addr){
+    int physLocation = pageTable[page_num].physicalPage
+      * PageSize;
+    int offset = (page_num * PageSize) - noffH.code.virtualAddr;
+
+    // Don't need to worry about being in the middle of a page, because the
+    // entire page was requested...
+
+    stored_executable->ReadAt(&(machine->mainMemory[physLocation]),
+        PageSize, noffH.code.inFileAddr + offset);
+  }
+  else if(noffH.initData.virtualAddr <= page_addr
+      && noffH.initData.virtualAddr + noffH.initData.size > page_addr){
+    int physLocation = pageTable[page_num].physicalPage
+      * PageSize;
+    int offset = (page_num * PageSize) - noffH.initData.virtualAddr;
+
+    stored_executable->ReadAt(&(machine->mainMemory[physLocation]),
+        PageSize, noffH.initData.inFileAddr + offset);
+  }
+  //1.4.3 if pagefault on anything else: zero-fill it 
+  else{
+    // Zero out the current page
+    bzero(&machine->mainMemory[page_addr],
+        PageSize);
+  }
+
+  //1.5.1 mark PTE as valid
+  ret->pageTable[page_num].valid = TRUE;
+  //1.5.2 restart execution of user program without incrementing PC
+  return true;
 }
-//1.4.2 if pagefault on data: read data from executable
-else if(noffH.initData.virtualAddr){
-}
-//1.4.3 if pagefault on anything else: zero-fill it 
-else{
-}
 
-//1.5.1 mark PTE as valid
-ret->pageTable[i].valid = TRUE;
-//1.5.2 restart execution of user program without incrementing PC
-
-}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 //  Set the initial values for the user-level register set.

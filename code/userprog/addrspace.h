@@ -32,7 +32,7 @@ public:
     static AddrSpace* Initialize(OpenFile *executable);
 
     // Handle page fault exceptions for demand paging
-    static void demandpage(OpenFile *executable);
+    bool demandpage(int page_num);
 
     static AddrSpace* FaultedPage(OpenFile *executable, AddrSpace *ret);
 
@@ -46,6 +46,7 @@ public:
     void ClearState();    // Clear out all address-specific information
 
 private:
+    OpenFile *stored_executable;
     TranslationEntry *pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;		// Number of pages in the virtual

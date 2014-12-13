@@ -34,8 +34,6 @@ StartProcess(char *filename)
     space = AddrSpace::Initialize(executable);
     currentThread->space = space;
 
-    delete executable;			// close file
-
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
 
