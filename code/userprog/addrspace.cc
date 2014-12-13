@@ -259,7 +259,8 @@ void AddrSpace::ClearState()
 {
     for (unsigned int page = 0; page < numPages; ++page)
     {
-        memmanage->FreePage(pageTable[page].physicalPage);
+        if (pageTable[page].valid)
+          memmanage->FreePage(pageTable[page].physicalPage);
     }
 }
 
