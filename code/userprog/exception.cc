@@ -173,16 +173,11 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         }
         DEBUG('a', "User wants to execute %s.\n", input);
         printf("exec\n"); // i copy pasted this from syscall exec
+        OpenFile *executable = fileSystem->Open(input);
 
-        //Addrspace::demandpage(executable);
-
-       //fault thrown when .valid = FALSE;
-       //PFE -- handle by preparing requested page on demand	
-       //FaultedPage();
-       
-       //ReadMem (?) Syscalls (?)
+        AddrSpace::demandpage(executable);
         DEBUG('a', "PageFaultException : No valid translation found.\n");
-        Destroy();
+        //Destroy(); part 1.5 might go here
     }
     else if(which == ReadOnlyException){
         DEBUG('a', "ReadOnlyException : Write attempted to page marked \"read-only\".\n");
