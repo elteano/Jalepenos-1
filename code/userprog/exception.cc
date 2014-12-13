@@ -153,7 +153,6 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
       // part 1.3
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
-        DEBUG('y', "PageFAULTEXCEPTION!!.\n");
         // increment the pageFault counter
         stats->numPageFaults += 1;
 

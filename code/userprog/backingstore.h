@@ -13,9 +13,11 @@ class BackingStore {
   private:
   AddrSpace *space;
   OpenFile *file;
+  char fname[1024];
 
   public:
   BackingStore(int start_size);
+  ~BackingStore();
 
   /* Write the virtual page referenced by pte to the backing store */
   /* Example invocation: PageOut(&machine->pageTable[virtualPage]) or */
