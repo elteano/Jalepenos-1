@@ -144,7 +144,7 @@ AddrSpace::Initialize(OpenFile *executable)
 //this is where we have our normal initialize code for the page frame
 
 //pls talk.
-//I KNOW IT DOESNT' COMPILE BUT I DON'T KNOW WHAT PEOPLE ARE DOING SO I DECIDED TO PUSH
+//I KNOW IT DOESN'T COMPILE BUT I DON'T KNOW WHAT PEOPLE ARE DOING SO I DECIDED TO PUSH
 
 
 
@@ -155,6 +155,8 @@ AddrSpace::Initialize(OpenFile *executable)
 AddrSpace*
 AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
 
+
+    NoffHeader noffH;
     //something 
     //something
 
