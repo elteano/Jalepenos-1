@@ -20,7 +20,8 @@ BackingStore::PageOut(TranslationEntry *pte)
   pte->valid = 0;
   //--- check to see if the entry being written out is dirty
   //--- only increment the data if it's been modified
-  stats->numPageOuts = (pte->dirty)? stats->numPageOuts + 1 : stats->numPageOuts;
+  stats->numPageOuts = (pte->dirty)? stats->numPageOuts + 1 : 
+                        stats->numPageOuts;
 
   file->WriteAt(&machine->mainMemory[pte->physicalPage * PageSize],
       PageSize, pte->virtualPage * PageSize);
