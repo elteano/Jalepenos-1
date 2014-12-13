@@ -19,13 +19,12 @@ BackingStore::PageOut(TranslationEntry *pte)
   pte->valid = FALSE;
   //--- check to see if the entry being written out is dirty
   //--- only increment the data if it's been modified
-  stats->numPageOuts = (pte->dirty)? stats->numPageOuts + 1 : 
-                        stats->numPageOuts;
 
   DEBUG('y', "Dirty bit %d.\n", pte->dirty);
   if (pte->dirty)
   {
     DEBUG('y', "Dirty page, paging out.\n");
+    stats->numPageOuts = stats->numPageOuts + 1;
     file->WriteAt(&machine->mainMemory[pte->physicalPage * PageSize],
         PageSize, pte->virtualPage * PageSize);
   }
