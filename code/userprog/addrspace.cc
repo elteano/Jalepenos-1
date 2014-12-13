@@ -130,12 +130,16 @@ AddrSpace::Initialize(OpenFile *executable)
         // pages to be read-only
     }
 
+//part 1.2 set aside (1) (2) (3)
+
+
+/**
     //When a page faults do (1), (2), and (3)
     //allocate physical frames, but delay loading content
     //until frames referenced by process
-
     // Zero out all allocated memory
     // (1) zeros out the physical page frames
+    
     for (unsigned int pageNum = 0; pageNum < ret->numPages; ++pageNum)
     {
       int physPage = ret->pageTable[pageNum].physicalPage;
@@ -238,9 +242,46 @@ AddrSpace::Initialize(OpenFile *executable)
             dataOverflow, noffH.initData.inFileAddr + (PageSize - file_offset) + cPage * PageSize);
       }
     }
+*/
     return ret;
 }
 
+
+void
+AddrSpace::demandpage(OpenFile *executable)
+{
+//1.4 add demandpage pagefault handler
+AddrSpace* ret = new AddrSpace(NULL);
+
+NoffHeader noffH;
+unsigned int i, size;
+//store executable into noffH
+executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+
+//does something idk if i need this here.
+    if ((noffH.noffMagic != NOFFMAGIC) &&
+            (WordToHost(noffH.noffMagic) == NOFFMAGIC))
+        SwapHeader(&noffH);
+    ASSERT(noffH.noffMagic == NOFFMAGIC);
+
+//1.4.1 if pagefault on code: read corresponding code from executable
+if(/*something something noffH.code.virtualaddr*/i==0){
+executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+noffH.code.size,noffH.code.inFileAddr);
+
+}
+//1.4.2 if pagefault on data: read data from executable
+else if(noffH.initData.virtualAddr){
+}
+//1.4.3 if pagefault on anything else: zero-fill it 
+else{
+}
+
+//1.5.1 mark PTE as valid
+ret->pageTable[i].valid = TRUE;
+//1.5.2 restart execution of user program without incrementing PC
+
+}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 //  Set the initial values for the user-level register set.
@@ -250,7 +291,6 @@ AddrSpace::Initialize(OpenFile *executable)
 //  will be saved/restored into the currentThread->userRegisters
 //  when this thread is context switched out.
 //----------------------------------------------------------------------
-
 void
 AddrSpace::InitRegisters()
 {
