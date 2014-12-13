@@ -321,7 +321,6 @@ void AddrSpace::ClearPage()
         }
         ++clock_hand;
         clock_hand = clock_hand % numPages;
-        printf("%d", rand);
     }
 }
 
