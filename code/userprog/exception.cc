@@ -148,8 +148,10 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
 
     //#3
     else if(which == PageFaultException){
-	//upon exception, prepare request page on demand via FaultedPage();
-
+       //fault thrown when .valid = FALSE;
+       //PFE -- handle by preparing requested page on demand	
+       //FaultedPage();
+       
        //ReadMem (?) Syscalls (?)
 
         DEBUG('a', "PageFaultException : No valid translation found.\n");

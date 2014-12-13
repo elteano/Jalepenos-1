@@ -134,6 +134,10 @@ AddrSpace::Initialize(OpenFile *executable)
     //Allocate physical page frames, but do not load frames with content
     //Content loaded via FaultedPage()
 
+    //something something ReadMem() (?)
+    //if return false no error, page fault
+    //if 2nd return false then error
+
     return ret;
 }
 //From my understanding
@@ -169,7 +173,7 @@ AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
     }
 
 
-
+//SOMETHING SOMETHING
 //if fault on code page
 //read from executable file
 
@@ -178,6 +182,8 @@ AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
 
 //if fault on stack frame
 //zero-fill frame
+//SOMETHING
+
 
     // Copy code and data segments into memory
     // (2) preloads the address space with the code and data segments
