@@ -154,6 +154,8 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
         DEBUG('y', "PageFAULTEXCEPTION!!.\n");
+        // increment the pageFault counter
+        stats->numPageFaults += 1;
 
         int input = machine->ReadRegister(BadVAddrReg);
         DEBUG('y', "Page fault on input %d.\n", input / PageSize);
