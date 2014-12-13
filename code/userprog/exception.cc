@@ -118,8 +118,6 @@ void ExceptionHandler(ExceptionType which)
           }
           fork->space = space;
 
-          delete executable;			// close file
-
           // pre-increment numprogs
           // Place our new thread into the list of programs
           int result = threadlist->Alloc(fork);
@@ -157,12 +155,18 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
         DEBUG('a', "PageFAULTEXCEPTION!!.\n");
 
-        int input = machine->ReadRegister(4);
+        int input = machine->ReadRegister(LoadReg);
 
         // TODO determine page number - perhaps this is input?
         DEBUG('a', "System input is %d.\n", input);
-        currentThread->space->demandpage(input);
-        DEBUG('a', "PageFaultException : No valid translation found.\n");
+        if (!currentThread->space->demandpage(input)) {
+          DEBUG('a', "Returning false.\n", input);
+          DEBUG('a', "PageFaultException : No valid translation found.\n");
+        }
+        else {
+          machine->WriteRegister(2, 0);
+          machine->WriteRegister(PCReg, pcAfter-4);
+        }
         //Destroy(); part 1.5 might go here
     }
     else if(which == ReadOnlyException){

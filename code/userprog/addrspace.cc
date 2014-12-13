@@ -119,9 +119,8 @@ AddrSpace::Initialize(OpenFile *executable)
     for (i = 0; i < ret->numPages; i++) {
         ret->pageTable[i].virtualPage = i;
         // Request page from memory manager
-        ret->pageTable[i].physicalPage = memmanage->AllocPage();
-        // Ensure that we were given a page
-        ASSERT(ret->pageTable[i].physicalPage >= 0);
+        ret->pageTable[i].physicalPage = -1;
+        // No more need to ensure we have a valid page
         // Rest of initialization code is fine
         ret->pageTable[i].valid = FALSE;
         ret->pageTable[i].use = FALSE;
@@ -140,8 +139,6 @@ bool
 AddrSpace::demandpage(int page_num)
 {
   //1.4 add demandpage pagefault handler
-  AddrSpace* ret = new AddrSpace(NULL);
-
   NoffHeader noffH;
   int page_addr = page_num * PageSize;
   //store stored_executable into noffH
@@ -156,6 +153,7 @@ AddrSpace::demandpage(int page_num)
 
   if (pageTable[page_num].physicalPage < 0)
   {
+    DEBUG('a', "got page %d.\n", pageTable[page_num].physicalPage);
     return false;
   }
 
@@ -189,7 +187,7 @@ AddrSpace::demandpage(int page_num)
   }
 
   //1.5.1 mark PTE as valid
-  ret->pageTable[page_num].valid = TRUE;
+  pageTable[page_num].valid = TRUE;
   //1.5.2 restart execution of user program without incrementing PC
   return true;
 }
