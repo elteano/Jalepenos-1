@@ -33,3 +33,8 @@ bool MemoryManager::PageIsAllocated(int physPageNum)
   return bmap->Test(physPageNum);
 }
 
+int MemoryManager::NumFreePages()
+{
+  return bmap->NumClear();
+}
+

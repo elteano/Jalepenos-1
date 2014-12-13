@@ -153,15 +153,15 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
       // part 1.3
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
-        DEBUG('a', "PageFAULTEXCEPTION!!.\n");
+        DEBUG('y', "PageFAULTEXCEPTION!!.\n");
 
         int input = machine->ReadRegister(BadVAddrReg);
+        DEBUG('y', "Page fault on input %d.\n", input / PageSize);
 
-        // TODO determine page number - perhaps this is input?
-        DEBUG('y', "System input is %d.\n", input / PageSize);
         if (!currentThread->space->demandpage(input / PageSize)) {
           DEBUG('y', "Returning false.\n", input);
           DEBUG('y', "PageFaultException : No valid translation found.\n");
+          machine->WriteRegister(PCReg, pcAfter-4);
         }
         else {
           machine->WriteRegister(PCReg, pcAfter-4);

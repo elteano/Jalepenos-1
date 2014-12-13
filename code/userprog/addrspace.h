@@ -16,6 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "memmanage.h"
+#include "backingstore.h"
 
 #define UserStackSize		1024 	// increase this as necessary!
 
@@ -46,6 +47,9 @@ public:
     void ClearState();    // Clear out all address-specific information
 
 private:
+    void ClearPage();     // Free up one page
+
+    BackingStore *backing;
     OpenFile *stored_executable;
     TranslationEntry *pageTable;	// Assume linear page table translation
     // for now!

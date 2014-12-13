@@ -106,8 +106,8 @@ AddrSpace::Initialize(OpenFile *executable)
     // to leave room for the stack
     ret->numPages = divRoundUp(size, PageSize);
     size = ret->numPages * PageSize;
+    ret->backing = new BackingStore(size);
 
-    ASSERT(ret->numPages <= NumPhysPages);    // check we're not trying
     // to run anything too big --
     // at least until we have
     // virtual memory
@@ -140,6 +140,34 @@ AddrSpace::demandpage(int page_num)
 {
   //1.4 add demandpage pagefault handler
   NoffHeader noffH;
+  if (pageTable[page_num].physicalPage >= 0)
+  {pageTable[page_num].valid=0;
+    // We've already allocated this page, and so we read from memory
+    pageTable[page_num].physicalPage = memmanage->AllocPage();
+    if (pageTable[page_num].physicalPage < 0)
+    {
+      DEBUG('y', "Unable to allocate page on first try. Free pages: %d.\n",
+          memmanage->NumFreePages());
+      ClearPage();
+      pageTable[page_num].physicalPage = memmanage->AllocPage();
+      if (pageTable[page_num].physicalPage < 0)
+      {
+        DEBUG('y', "Unable to allocate page on second try. Free pages: %d.\n",
+            memmanage->NumFreePages());
+        ClearPage();
+        pageTable[page_num].physicalPage = memmanage->AllocPage();
+        if (pageTable[page_num].physicalPage < 0)
+        {
+          DEBUG('y', "Unable to allocate page on third try. Free pages: %d.\n",
+              memmanage->NumFreePages());
+          ASSERT(FALSE);
+        }
+      }
+    }
+    DEBUG('y', "Secured page %d.\n", pageTable[page_num].physicalPage);
+    backing->PageIn(&pageTable[page_num]);
+    return true;
+  }
   int page_addr = page_num * PageSize;
   //store stored_executable into noffH
   stored_executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
@@ -153,8 +181,19 @@ AddrSpace::demandpage(int page_num)
 
   if (pageTable[page_num].physicalPage < 0)
   {
-    DEBUG('a', "got page %d.\n", pageTable[page_num].physicalPage);
-    return false;
+    DEBUG('y', "got page %d.\n", pageTable[page_num].physicalPage);
+    ClearPage();
+    pageTable[page_num].physicalPage = memmanage->AllocPage();
+    if (pageTable[page_num].physicalPage < 0)
+    {
+      DEBUG('y', "Couldn't fix the problem! Number free pages: %d\n",
+          memmanage->NumFreePages());
+      return false;
+    }
+    else
+    {
+      DEBUG('y', "Fixed the lack of pages!\n");
+    }
   }
 
   //1.4.2 if pagefault on data: read data from stored_executable
@@ -185,6 +224,7 @@ AddrSpace::demandpage(int page_num)
     bzero(&machine->mainMemory[page_addr],
         PageSize);
   }
+  DEBUG('y', "Number of pages remaining: %d\n", memmanage->NumFreePages());
 
   //1.5.1 mark PTE as valid
   pageTable[page_num].valid = TRUE;
@@ -259,8 +299,26 @@ void AddrSpace::ClearState()
 {
     for (unsigned int page = 0; page < numPages; ++page)
     {
-        if (pageTable[page].valid)
+        if (pageTable[page].valid && pageTable[page].physicalPage >= 0)
           memmanage->FreePage(pageTable[page].physicalPage);
+    }
+}
+
+void AddrSpace::ClearPage()
+{
+    for (unsigned int page = 0; page < numPages; ++page)
+    {
+      if (pageTable[page].valid && !pageTable[page].use &&
+          pageTable[page].physicalPage >= 0)
+        {
+          printf("Clearing %d.\n", pageTable[page].physicalPage);
+          backing->PageOut(&pageTable[page]);
+          return;
+        }
+        else
+        {
+          pageTable[page].use = 0;
+        }
     }
 }
 

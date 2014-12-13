@@ -11,6 +11,7 @@ class MemoryManager {
   private:
     int mNumPages;
     BitMap * bmap;
+    int next_delete;
 
   public:
     /* Create a manager to track the allocation of numPages of physical memory.  
@@ -28,6 +29,8 @@ class MemoryManager {
 
     /* True if the physical page is allocated, false otherwise. */
     bool PageIsAllocated(int physPageNum);
+
+    int NumFreePages();
 };
 
 #endif
