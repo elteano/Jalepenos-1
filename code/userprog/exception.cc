@@ -146,7 +146,9 @@ Other exceptions to check for :
 PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException, OverflowException, IllegalInstrException
 */
 
+    //#3
     else if(which == PageFaultException){
+
       // part 1.3
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
@@ -173,6 +175,12 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         printf("exec\n"); // i copy pasted this from syscall exec
 
         //Addrspace::demandpage(executable);
+
+       //fault thrown when .valid = FALSE;
+       //PFE -- handle by preparing requested page on demand	
+       //FaultedPage();
+       
+       //ReadMem (?) Syscalls (?)
         DEBUG('a', "PageFaultException : No valid translation found.\n");
         Destroy();
     }

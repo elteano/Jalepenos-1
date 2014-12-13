@@ -137,6 +137,42 @@ AddrSpace::Initialize(OpenFile *executable)
     //When a page faults do (1), (2), and (3)
     //allocate physical frames, but delay loading content
     //until frames referenced by process
+=======
+    
+    //Allocate physical page frames, but do not load frames with content
+    //Content loaded via FaultedPage()
+
+    //something something ReadMem() (?)
+    //if return false no error, page fault
+    //if 2nd return false then error
+
+    return ret;
+}
+//From my understanding
+//1 -- I changed the status to false.
+//2 -- in init we're to allocate physical frames, but delay loading frames with content -- what I've done is removed the code where we impleemnt/initialize the PTE
+//3 -- upon handling the page again, page fault exception -> call Syscall (?) into preparing requested page on demand -- or call (4)
+//4 -- into calling a method (FaultedPage) which prepares the page -- different for various addrspace segments
+//this is where we have our normal initialize code for the page frame
+
+//Nobody knows what they're doing, so I decided to push
+
+
+
+
+//Load content into physical frames
+//Implementation of (4) as specified by (2) and (3)
+//Called when Page Fault Exception
+AddrSpace*
+AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
+
+
+    NoffHeader noffH;
+    //something 
+    //something
+
+
+>>>>>>> 0061dde5f611e496e628324c92bbfd1d5716b00c
     // Zero out all allocated memory
     // (1) zeros out the physical page frames
     
@@ -146,6 +182,17 @@ AddrSpace::Initialize(OpenFile *executable)
       bzero(&machine->mainMemory[physPage * PageSize], PageSize);
     }
 
+
+//SOMETHING SOMETHING
+//if fault on code page
+//read from executable file
+
+//if fault on data page
+//read from corresponding data from executable
+
+//if fault on stack frame
+//zero-fill frame
+//SOMETHING
 
 
     // Copy code and data segments into memory
@@ -242,8 +289,33 @@ AddrSpace::Initialize(OpenFile *executable)
             dataOverflow, noffH.initData.inFileAddr + (PageSize - file_offset) + cPage * PageSize);
       }
     }
+<<<<<<< HEAD
 */
     return ret;
+
+
+//#5
+
+//something something no for loop
+
+// unsigned int i;
+ for (i = 0; i < ret->numPages; i++) {
+        ret->pageTable[i].virtualPage = i;
+        // Request page from memory manager
+        ret->pageTable[i].physicalPage = memmanage->AllocPage();
+        // Ensure that we were given a page
+        ASSERT(ret->pageTable[i].physicalPage >= 0);
+        // Rest of initialization code is fine
+        ret->pageTable[i].valid = TRUE;
+        ret->pageTable[i].use = FALSE;
+        ret->pageTable[i].dirty = FALSE;
+        ret->pageTable[i].readOnly = FALSE;  // if the code segment was entirely on
+        // a separate page, we could set its
+        // pages to be read-only
+    }
+
+
+   return ret;
 }
 
 

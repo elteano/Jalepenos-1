@@ -30,8 +30,12 @@ public:
 
     // Create an address space, allowing for failure
     static AddrSpace* Initialize(OpenFile *executable);
+
     // Handle page fault exceptions for demand paging
     static void demandpage(OpenFile *executable);
+
+    static AddrSpace* FaultedPage(OpenFile *executable, AddrSpace *ret);
+
 
     void InitRegisters();		// Initialize user-level CPU registers,
     // before jumping to user code
