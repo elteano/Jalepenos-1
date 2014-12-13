@@ -30,6 +30,7 @@ public:
 
     // Create an address space, allowing for failure
     static AddrSpace* Initialize(OpenFile *executable);
+    static AddrSpace* FaultedPage(OpenFile *executable, AddrSpace ret);
 
     void InitRegisters();		// Initialize user-level CPU registers,
     // before jumping to user code

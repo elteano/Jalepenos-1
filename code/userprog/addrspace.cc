@@ -130,9 +130,34 @@ AddrSpace::Initialize(OpenFile *executable)
         // pages to be read-only
     }
 
-    //When a page faults do (1), (2), and (3)
-    //allocate physical frames, but delay loading content
-    //until frames referenced by process
+    
+    //Allocate physical page frames, but do not load frames with content
+    //Content loaded via FaultedPage()
+
+    return ret;
+}
+//From my understanding
+//1 -- I changed the status to false.
+//2 -- in init we're to allocate physical frames, but delay loading frames with content -- what I've done is removed the code where we impleemnt/initialize the PTE
+//3 -- upon handling the page again, page fault exception -> call Syscall (?) into preparing requested page on demand -- or call (4)
+//4 -- into calling a method (FaultedPage) which prepares the page -- different for various addrspace segments
+//this is where we have our normal initialize code for the page frame
+
+//pls talk.
+//I KNOW IT DOESNT' COMPILE BUT I DON'T KNOW WHAT PEOPLE ARE DOING SO I DECIDED TO PUSH
+
+
+
+
+//Load content into physical frames
+//Implementation of (4) as specified by (2) and (3)
+//Called when Page Fault Exception
+AddrSpace*
+AddrSpace::FaultedPage(OpenFile *executable, AddrSpace* ret){
+
+    //something 
+    //something
+
 
     // Zero out all allocated memory
     // (1) zeros out the physical page frames
@@ -143,6 +168,15 @@ AddrSpace::Initialize(OpenFile *executable)
     }
 
 
+
+//if fault on code page
+//read from executable file
+
+//if fault on data page
+//read from corresponding data from executable
+
+//if fault on stack frame
+//zero-fill frame
 
     // Copy code and data segments into memory
     // (2) preloads the address space with the code and data segments
@@ -238,7 +272,8 @@ AddrSpace::Initialize(OpenFile *executable)
             dataOverflow, noffH.initData.inFileAddr + (PageSize - file_offset) + cPage * PageSize);
       }
     }
-    return ret;
+
+
 }
 
 //----------------------------------------------------------------------

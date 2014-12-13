@@ -146,7 +146,12 @@ Other exceptions to check for :
 PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException, OverflowException, IllegalInstrException
 */
 
+    //#3
     else if(which == PageFaultException){
+	//upon exception, prepare request page on demand via FaultedPage();
+
+       //ReadMem (?) Syscalls (?)
+
         DEBUG('a', "PageFaultException : No valid translation found.\n");
         Destroy();
     }
