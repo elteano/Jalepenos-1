@@ -306,19 +306,22 @@ void AddrSpace::ClearState()
 
 void AddrSpace::ClearPage()
 {
-    for (unsigned int page = 0; page < numPages; ++page)
+    for (;;)
     {
-      if (pageTable[page].valid && !pageTable[page].use &&
-          pageTable[page].physicalPage >= 0)
+      if (pageTable[clock_hand].valid && !pageTable[clock_hand].use &&
+          pageTable[clock_hand].physicalPage >= 0)
         {
-          printf("Clearing %d.\n", pageTable[page].physicalPage);
-          backing->PageOut(&pageTable[page]);
+          printf("Clearing %d.\n", pageTable[clock_hand].physicalPage);
+          backing->PageOut(&pageTable[clock_hand]);
           return;
         }
         else
         {
-          pageTable[page].use = 0;
+          pageTable[clock_hand].use = 0;
         }
+        ++clock_hand;
+        clock_hand = clock_hand % numPages;
+        printf("%d", rand);
     }
 }
 

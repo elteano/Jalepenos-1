@@ -49,6 +49,7 @@ public:
 private:
     void ClearPage();     // Free up one page
 
+    int clock_hand;
     BackingStore *backing;
     OpenFile *stored_executable;
     TranslationEntry *pageTable;	// Assume linear page table translation
