@@ -24,6 +24,7 @@
 #endif
 
 MemoryManager * memmanage;
+bool use_fifo = false;
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -311,10 +312,12 @@ void AddrSpace::ClearPage()
 {
     for (;;)
     {
-      if (pageTable[clock_hand].valid && !pageTable[clock_hand].use &&
+      DEBUG('y', "Clock at %d.\n", clock_hand);
+      if (pageTable[clock_hand].valid && (!pageTable[clock_hand].use || use_fifo) &&
           pageTable[clock_hand].physicalPage >= 0)
         {
-          printf("Clearing virtual %d, physical %d.\n",
+          printf("use_fifo: %s\n", (use_fifo) ? "true" : "false");
+          DEBUG('y', "Clearing virtual %d, physical %d.\n",
               pageTable[clock_hand].virtualPage,
               pageTable[clock_hand].physicalPage);
           backing->PageOut(&pageTable[clock_hand]);
@@ -322,6 +325,7 @@ void AddrSpace::ClearPage()
         }
         else
         {
+          DEBUG('y', "Use bit is %d.\n", pageTable[clock_hand].use);
           pageTable[clock_hand].use = 0;
         }
         ++clock_hand;

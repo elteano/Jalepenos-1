@@ -20,6 +20,7 @@
 
 #define UserStackSize		1024 	// increase this as necessary!
 
+extern bool use_fifo;
 extern MemoryManager * memmanage;
 
 class AddrSpace {
