@@ -1,0 +1,20 @@
+
+Group: Chao Pan, Kevin Einstein, Thomas Tucker, Spencer Woo
+
+
+1. Implement Demand Paging
+   For demand paging, we made all page table entries invalid. Then we made the pagefault exception in exception.cc call our new method Addrspace::demandpage to handle all pagefaults. In the method, we decided whether or not the page fault was on the code, data, or stack of the executable file. Then we assigned virtual memory to the file pages according to the type. After success, we set the PTEs to valid and restarted execution without incrementing PC.
+2. Demand paging with page replacement
+  For Part 2 we made a backingstore class to evict pages when physical memory is full. Then page-in the page that we want.
+
+3. Testing
+  We wrote tests that exceeded the physical memory, and used arrays to simulate good locality, bad locality, and randomn locality. Our implementation had prints and debugs to allow tracing through these tests and confirm if the implementation passes.
+
+4. Counters of page faults
+  To maintain counters of page faults we added counters to machine/stats.h and printed them in stats.cc. 
+
+5. LRU 
+  Our implementation of #2 uses LRU.
+
+Summary
+Everyone contributed to the project. Everyone worked on part 1 and 2, Spencer and Chao worked on part 3,  Kevin and Thomas worked on part 4, Thomas worked on part 5. 
