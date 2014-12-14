@@ -69,6 +69,9 @@ Thread::~Thread()
 
     ASSERT(this != currentThread);
     delete mayDie;
+    #ifdef USER_PROGRAM
+    delete space;
+    #endif
     if (joining)
       delete joinSignal;
     if (stack != NULL)

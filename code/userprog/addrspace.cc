@@ -76,6 +76,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 AddrSpace::~AddrSpace()
 {
     delete [] pageTable;
+    delete backing;
+    delete stored_executable;
 }
 
 

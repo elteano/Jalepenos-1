@@ -49,6 +49,6 @@ BackingStore::PageIn(TranslationEntry *pte)
 
 BackingStore::~BackingStore()
 {
-  fileSystem->Remove(fname);
   delete file;
+  fileSystem->Remove(fname);
 }
