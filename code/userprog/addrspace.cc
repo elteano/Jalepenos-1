@@ -318,7 +318,6 @@ void AddrSpace::ClearPage()
       if (pageTable[clock_hand].valid && (!pageTable[clock_hand].use || use_fifo) &&
           pageTable[clock_hand].physicalPage >= 0)
         {
-          printf("use_fifo: %s\n", (use_fifo) ? "true" : "false");
           DEBUG('y', "Clearing virtual %d, physical %d.\n",
               pageTable[clock_hand].virtualPage,
               pageTable[clock_hand].physicalPage);

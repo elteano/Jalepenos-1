@@ -149,7 +149,6 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
     //#3
     else if(which == PageFaultException){
 
-      DebugInit("y");
       // part 1.3
       // call addrspace method
       // fault on code page loads code, fault on data page reads data, fault on stack page zeroes out frame
@@ -157,8 +156,6 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         stats->numPageFaults += 1;
 
         int input = machine->ReadRegister(BadVAddrReg);
-        unsigned int vpn = BadVAddrReg/PageSize;
-        printf("vpn = %d , input = %d\n", vpn, input/PageSize);
         DEBUG('y', "Page fault on input %d.\n", input / PageSize);
 
         if (!currentThread->space->demandpage(input / PageSize)) {
