@@ -223,7 +223,7 @@ AddrSpace::demandpage(int page_num)
   //1.4.3 if pagefault on anything else: zero-fill it 
   else{
     // Zero out the current page
-    bzero(&machine->mainMemory[page_addr],
+    bzero(&machine->mainMemory[pageTable[page_num].physicalPage * PageSize],
         PageSize);
   }
   DEBUG('y', "Number of pages remaining: %d\n", memmanage->NumFreePages());
