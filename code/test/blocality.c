@@ -36,7 +36,7 @@ int inc = 0;
 		 41, 42, 43, 44, 45, 46, 47};
 */
 
-int array[200];
+int array[20];
 
 
 void
@@ -46,13 +46,9 @@ rnd_array(int n){
     int k=0;
 
 
-    for(k=0; k< 3; k++){
+    for(k=0; k< 10; k++){
     for(j=0; j< n; j++){
-       if(j%2 == 0){
-		array[j] = j%2;
-	}
-	else
-		array[j] = n- (j%2);
+       array[j] = j;
     }
     }
 
