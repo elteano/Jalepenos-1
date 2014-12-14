@@ -24,6 +24,7 @@
 //    -s causes user programs to be executed in single-step mode
 //    -x runs a user program
 //    -c tests the console
+//    -b causes the FIFO page replacement scheme to be used
 //
 //  FILESYS
 //    -f causes the physical disk to be formatted
@@ -55,6 +56,9 @@
 
 #ifdef THREADS
 extern int testnum;
+#endif
+#ifdef USER_PROGRAM
+extern bool use_fifo;
 #endif
 
 // External functions used by this file
@@ -109,7 +113,9 @@ main(int argc, char **argv)
         if (!strcmp(*argv, "-z"))               // print copyright
             printf("%s", copyright);
 #ifdef USER_PROGRAM
-        if (!strcmp(*argv, "-x")) {        	// run a user program
+        if (!strcmp(*argv, "-b")) {        	// run a user program
+            use_fifo=true;
+        } else if (!strcmp(*argv, "-x")) {        	// run a user program
             ASSERT(argc > 1);
             StartProcess(*(argv + 1));
             argCount = 2;
