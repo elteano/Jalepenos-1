@@ -197,6 +197,11 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         int rsult = currentThread->getExitStatus();
         machine->WriteRegister(2, rsult);
     }
+    else if ((which == SyscallException) && (type == SC_Write))
+    {
+      printf("User attempting to write. Unsupported. \n");
+      Destroy();
+    }
     else
     {
         printf("Unexpected user mode exception %d %d\n", which, type);
