@@ -8,7 +8,7 @@
 int Exec(char *, int, char **, int);
 int Exit(int);
 const int size = 1000;
-int array[size];
+int arraythousand[1000];
 
 
 void
@@ -16,7 +16,7 @@ inc_array(int n){
 
     int j=0;
     for(j=0; j< n; j++){
-       array[j] = j;
+       arraythousand[j] = j;
     }
 
 }
@@ -27,7 +27,7 @@ verify_array(int n)
     int i;
 
     for (i = 0; i < n; i++) {
-	if (array[i] != i) {
+	if (arraythousand[i] != i) {
 	    Exit(-1);
 	}
     }
@@ -40,7 +40,7 @@ add_array(int n)
 
     sum = 0;
     for (i = 0; i < n; i++) {
-	sum += array[i];
+	sum += arraythousand[i];
     }
     return sum;
 }

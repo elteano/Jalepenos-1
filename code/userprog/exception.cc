@@ -157,6 +157,8 @@ PageFaultException, ReadOnlyException, BusErrorException, AddressErrorException,
         stats->numPageFaults += 1;
 
         int input = machine->ReadRegister(BadVAddrReg);
+        unsigned int vpn = BadVAddrReg/PageSize;
+        printf("vpn = %d , input = %d\n", vpn, input/PageSize);
         DEBUG('y', "Page fault on input %d.\n", input / PageSize);
 
         if (!currentThread->space->demandpage(input / PageSize)) {
