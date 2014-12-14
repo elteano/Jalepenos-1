@@ -30,7 +30,27 @@ Group: Chao Pan, Kevin Einstein, Thomas Tucker, Spencer Woo
   printed them in stats.cc. 
 
 5. LRU 
-  Our implementation of #2 uses LRU.
+  Our implementation of #2 uses LRU. In order to complete this portion of the
+  assignment, we added the '-b' flag to remove checks on the 'use' bit, thus
+  creating a cyclic page replacement algorithm that isn't quite FIFO.
+  Note that this information was taken using four physical pages in order to
+  bring about as many page faults as possible. 
+
+  Program   PageFaults  PageOuts    PageIns
+  halt      3           0           2
+  halt(b)   3           0           2
+  array     17          6           16
+  array(b)  23          9           22
+  somemem   199         91          196
+  somemem(b)149         60          146
+  matmult   58093       17607       58055
+  matmult(b)58536       17627       58498
+
+  Bringing the page count up to 8, we see some nice locality with the matmult
+  test:
+  Program   PageFaults  PageOuts    PageIns
+  matmult   6264        318         6226
+  matmult(b)7857        882         7819
 
 Summary
   Everyone contributed to the project. Everyone worked on part 1 and 2, Spencer
