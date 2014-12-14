@@ -7,8 +7,8 @@
 
 int Exec(char *, int, char **, int);
 int Exit(int);
-const int size = 800;
-int arraythousand[800];
+const int size = 8000;
+int arraythousand[8000];
 
 
 void

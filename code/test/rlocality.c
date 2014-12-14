@@ -27,7 +27,7 @@ irand(int l, int h)
 
 int Exec(char *, int, char **, int);
 int Exit(int);
-int array[200];
+int array[20000];
 
 
 void

@@ -8,8 +8,8 @@
 int Exec(char *, int, char **, int);
 int Exit(int);
 
-const int size = 200;
-int array[200];
+const int size = 2000;
+int array[20000];
 
 
 

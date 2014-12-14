@@ -36,7 +36,7 @@ int inc = 0;
 		 41, 42, 43, 44, 45, 46, 47};
 */
 
-int array[20];
+int array[2000];
 
 
 void

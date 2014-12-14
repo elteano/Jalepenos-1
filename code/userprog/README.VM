@@ -25,6 +25,12 @@ Group: Chao Pan, Kevin Einstein, Thomas Tucker, Spencer Woo
   prints and debugs to allow tracing through these tests and confirm if the
   implementation passes.
 
+  allmem references "all" pages in memory
+  somemem references "some" pages in memory
+  glocality references small subset of pages
+  blocality references "everything" in a pattern
+  rlocality pseudo randomly references pages
+
 4. Counters of page faults
   To maintain counters of page faults we added counters to machine/stats.h and
   printed them in stats.cc. 

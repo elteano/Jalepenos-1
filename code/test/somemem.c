@@ -7,8 +7,8 @@
 
 int Exec(char *, int, char **, int);
 int Exit(int);
-const int size = 48;
-int array[48];
+const int size = 480;
+int array[480];
 
 
 void
