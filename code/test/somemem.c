@@ -1,13 +1,13 @@
 /*
- * allmem.c
+ * somemem.c
  *
- * A simple program that refernces all pages in memory.
+ * A simple program that refernces some pages in memory.
  */
 
 
 int Exec(char *, int, char **, int);
 int Exit(int);
-
+const int size = 48;
 int array[48];
 
 
@@ -57,11 +57,11 @@ main ()
 {
     int sum;
     
-    fib_array(48);
+    fib_array(size);
 
-    verify_array(48);
-    sum = add_array(48);
-    verify_array(48);
+    verify_array(size);
+    sum = add_array(size);
+    verify_array(size);
 
     Exit(sum);
 }

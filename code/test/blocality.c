@@ -1,7 +1,7 @@
 /*
- * rlocality.c
+ * blocality.c
  *
- * A simple program that refernces pages randomly
+ * A simple program that refernces pages with bad locality
  */
 
 unsigned int seed;
@@ -43,9 +43,17 @@ void
 rnd_array(int n){
 
     int j=0;
+    int k=0;
+
+
+    for(k=0; k< 3; k++){
     for(j=0; j< n; j++){
-       array[j] = irand(0,n);
-       inc += 1;
+       if(j%2 == 0){
+		array[j] = j%2;
+	}
+	else
+		array[j] = n- (j%2);
+    }
     }
 
 }

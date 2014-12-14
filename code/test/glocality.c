@@ -1,8 +1,17 @@
 /*
- * rlocality.c
+ * glocality.c
  *
- * A simple program that refernces pages randomly
+ * A simple program that refernces to a small subset of pages.
  */
+
+
+int Exec(char *, int, char **, int);
+int Exit(int);
+
+const int size = 200;
+int array[200];
+
+
 
 unsigned int seed;
 
@@ -25,27 +34,13 @@ irand(int l, int h)
   return val;
 }
 
-int Exec(char *, int, char **, int);
-int Exit(int);
-int inc = 0;
-
-/*int array[48] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-		 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-		 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-		 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-		 41, 42, 43, 44, 45, 46, 47};
-*/
-
-int array[200];
-
 
 void
 rnd_array(int n){
 
     int j=0;
     for(j=0; j< n; j++){
-       array[j] = irand(0,n);
-       inc += 1;
+       array[j] = irand(0,10);
     }
 
 }
@@ -79,11 +74,11 @@ main ()
 {
     int sum;
     
-    rnd_array(200);
+    rnd_array(size);
 
-    verify_array(200);
-    sum = add_array(200);
-    verify_array(200);
+    verify_array(size);
+    sum = add_array(size);
+    verify_array(size);
 
     Exit(sum);
 }
